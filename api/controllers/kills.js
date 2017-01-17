@@ -1,4 +1,6 @@
-const Kills = require('../models/schemas/kill');
+const Kill = require('../models/schemas/kill');
+const Player = require('../models/schemas/player');
+mongoose.Promise = global.Promise
 
 exports.createKill = (req, res, next) => {
     // validation?
@@ -80,11 +82,24 @@ exports.deleteAllKillsByGameCode = (req, res, next) => {
 };
 
 exports.approveKill = (req, res, next) => {
-    Kill.findByIdAndUpdate(req.params.id, { approved: true }, { new: true }, (err, kill) => {
-        if (err) return next(err);
-        if (!kill) return res.status(400).('No kill with that id');
-        return res.json(kill);
-    });
+    Kill.findById(req.params.id).exec().then(function(kill) {
+        kill.approved = true;
+        return kill.save();
+    }).then(function(kill) {
+        return Promise.all([
+            Player.findById(kill.killer).exec(),
+            Player.findById(kill.killed).exec()
+        ]);
+    }).then(function(killer, killed) {
+        killed.isLiving = false;
+        killer.target = killed.target;
+        return Promise.all([
+            killed.save();
+            killer.save();
+        ]);
+    }).then(function(killed, killer) {
+        return res.sendStatus(200);
+    }).catch((err) => { return next(err); });
 };
 
 exports.updateKill = (req, res, next) => {
