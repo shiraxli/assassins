@@ -76,6 +76,10 @@ Player.methods.comparePlayerPassword = function(pw, callback) {
     });
 };
 
+gameSchema.virtual('allPlayers').get(function() {
+    return this.livingPlayers.concat(this.deadPlayers);
+});
+
 var Game = mongoose.model('Game', gameSchema);
 
 module.exports = Game;
