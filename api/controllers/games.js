@@ -29,7 +29,7 @@ exports.createGame = (req, res, next) => {
     } 
     
     gameData.livingPlayers = [];
-    gameCode.killedPlayers = [];
+    gameData.killedPlayers = [];
     
     var newGame = new Game(gameData);
     newGame.save((err, game) => {
