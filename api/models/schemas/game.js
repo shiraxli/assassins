@@ -9,8 +9,13 @@ var Player = new Schema({
         lastName: {type: String, trim: true, required: true},
         email: {type: String, required: true, index: true},
         password: {type: String, required: true},
-        target: [{Target: {target: Schema.ObjectId, timeAssigned: Date, timeKilled: Date}}],
-        isLiving: Boolean,
+        target: {
+            victim: Schema.ObjectId,
+            timeAssigned: Date,
+            timeKilled: Date
+        },
+        killedBy: Schema.ObjectId,
+        deathApproved: {type: Boolean, default: false},
         token: String
     },
     {
