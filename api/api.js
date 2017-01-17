@@ -38,46 +38,27 @@ router.param('id', (req, res, next, id) => {
     next();
 });
 
-router.param('phone', (req, res, next, phone) => {
-    if (!(+phone) || phone.length !== 10)
-        return res.status(400).send('Invalid phone');
-    next();
-});
-
 //================================================
 // Routes
 //================================================
 
-router.route('/players')
-	.get(players.getAllPlayers)
-	.post(players.createPlayer);
-router.route('/players/:id')
-	.get(players.getPlayerById)
-	.put(players.updatePlayerById)
-	.delete(players.deletePlayerById);
-
-router.route('/kills')
-	.get(kills.getAllKills)
-	.post(kills.createKill);
-router.route('/kills/:id')
-	.get(kills.getAllKillsByUserId)
-	.post(kills.approveKill)
-	.put(kills.updateKill);
-	.delete(kills.deleteAllKillsByUserId)
-router.route('/kills/game/:gamecode')
-	.get(kills.getAllKillsByGameCode)
-	.delete(kills.deleteAllKillsByGameCode);
-
 router.route('/games')
+	.get(games.getAllGames)
 	.post(games.createGame);
+router.route('/games/active')
+	.get(games.getActiveGames);
 router.route('/games/:gamecode')
 	.get(games.getGameById)
 	.put(games.updateGameById)
 	.delete(games.deleteGameById);
-router.route('/games/:gamecode/kills')
-	.get(kills.getUnapprovedKillsByGameCode);
+
 router.route('/games/:gamecode/players')
-	.get(players.getPlayerByGameCode);
+	.get(players.getAllPlayers)
+	.post(players.createPlayer);
+router.route('/games/:gamecode/players/:id')
+	.get(players.getPlayerById)
+	.put(players.updatePlayerById)
+	.delete(players.deletePlayerById);
 
 app.use('/', router);
 
