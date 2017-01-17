@@ -54,7 +54,7 @@ router.route('/players')
 router.route('/players/:id')
 	.get(players.getPlayerById)
 	.put(players.updatePlayerById)
-	.delete(deletePlayerById);
+	.delete(players.deletePlayerById);
 
 router.route('/kills')
 	.get(kills.getAllKills)
