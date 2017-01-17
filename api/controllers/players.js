@@ -1,15 +1,7 @@
 const Game = require('../models/schemas/game');
 
 exports.createPlayer = (req, res, next) => {
-    Game.find({gameCode: req.params.gameCode}, (err, game) => {
-        if (err) return next(err);
-        if (!game) return res.status(404).send('No game with that gameCode');
-        // game.livingPlayers.push(playerData);
-        game.markModified('livingPlayers');
-    }
 
-
-             )
     if (typeof req.body.firstName !== 'string')
         return res.status(400).send('No firstName');
     if (typeof req.body.lastName !== 'string')
@@ -18,14 +10,10 @@ exports.createPlayer = (req, res, next) => {
         return res.status(400).send('No email');
     if (typeof req.body.password !== 'string')
         return res.status(400).send('No password');
-    if (typeof req.body.gameCode !== 'string')
-        return res.status(400).send('No gameCode');
 
     var playerData = {};
     playerData.firstName = req.body.firstName;
-    playerData.lastName = req.body.lastName;
-
-    playerData.gameCode = ;
+    playerData.lastName = req.body.lastName;  
 
     // validate email
     // http://emailregex.com
@@ -36,61 +24,61 @@ exports.createPlayer = (req, res, next) => {
             playerData.email = req.body.email;
     };
 
+    playerData.password = req.body.password;
 
-        var newPlayer = new Player(playerData);
-        Player.save((err, user) => {
-            if (err) return next(err);
-            return res.sendStatus(200);
-        });
-    };
 
-    exports.getAllPlayers = (req, res, next) => {
-        Player.find({}, (err, users) => {
-            if (err) return next(err);
-            return res.json(users);
-        });
-    };
+    var newPlayer = new Player(playerData);
+    Game.find({gameCode: req.params.gameCode}, (err, game) => {
+        if (err) return next(err);
+        if (!game) return res.status(404).send('No game with that gameCode');
+        game.livingPlayers.push(newPlayer);
+        game.markModified('livingPlayers');
+    })
+});
+};
 
-    exports.getPlayerById = (req, res, next) => {
-        Player.findById(req.params.id, (err, user) => {
-            if (err) return next(err);
-            return res.json(user);
-        });
-    };
+exports.getAllPlayers = (req, res, next) => {
+    Game.find({ game: req.params.gameCode }, (err, game) => {
+        if (err) return next(err);
+        var gameQuery = {};
+        if (req.query.living === 'true')
+            return res.json(game.livingPlayers);
+        if (req.query.living === 'false')
+            return res.json(game.killedPlayers);
+        var allPlayers = game.livingPlayers.concat(game.killedplayers);
+        return res.json(allPlayers);
+    });
+};
 
-    exports.getPlayerByGame = (req, res, next) => {
-        Player.find({ game: req.params.game }, (err, users) => {
-            if (err) return next(err);
-            return res.json(users);
-        });
-    };
 
-    exports.getLivingPlayersByGame = (req, res, next) => {
-        Player.find({ game: req.params.game, living: true }, (err, users) => {
-            if (err) return next(err);
-            return res.json(users);
-        });
-    };
 
-    exports.getDeadPlayersByGame = (req, res, next) => {
-        Player.find({ game: req.params.game, living: false }, (err, users) => {
-            if (err) return next(err);
-            return res.json(users);
-        });
-    };
+exports.getPlayerById = (req, res, next) => {
+    Game.find({ game: req.params.gameCode }, (err, game) => {
+        if (err) return next(err);
+        var allPlayers = game.livingPlayers.concat(game.killedplayers);
+        for (var i = 0; i < allPlayers.length; i++) {
+            if allPlayers[i]._id == Number(req.params.id)
+                return res.json(allPlayers[i]);
+        }
+        return res.status(404).send('No player with that id');
+    });
+};
 
-    exports.updatePlayerById = (req, res, next) => {
-        Player.findByIdAndUpdate(req.params.id, req.body, {new: true}, (err, user) => {
-            if (err) return next(err);
-            if (!user) return res.status(404).send('No user with that ID');
-            return res.json(user);
-        });
-    };
 
-    exports.deletePlayerById = (req, res, next) => {
-        Player.findByIdAndRemove(req.params.id, (err, user) => {
-            if (err) return next(err);
-            if (!user) return res.status(404).send('No user with that ID');
-            return res.sendStatus(200);
-        });
-    };
+// TO DO 
+
+exports.updatePlayerById = (req, res, next) => {
+    Player.findByIdAndUpdate(req.params.id, req.body, {new: true}, (err, user) => {
+        if (err) return next(err);
+        if (!user) return res.status(404).send('No user with that ID');
+        return res.json(user);
+    });
+};
+
+exports.deletePlayerById = (req, res, next) => {
+    Player.findByIdAndRemove(req.params.id, (err, user) => {
+        if (err) return next(err);
+        if (!user) return res.status(404).send('No user with that ID');
+        return res.sendStatus(200);
+    });
+};
