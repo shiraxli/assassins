@@ -2,7 +2,6 @@ const Game = require('../models/schemas/Game');
 
 exports.createGame = (req, res, next) => {
 
-    // does this check if they exist?
     if (typeof req.body.email !== 'string')
         return res.status(400).send('No email');
     if (typeof req.body.gameCode !== 'string')
@@ -27,7 +26,11 @@ exports.createGame = (req, res, next) => {
         gameData.gameStatus = req.body.gameStatus;
     } else {
         gameData.gameStatus = 0;
-    }    
+    } 
+    
+    gameData.livingPlayers = [];
+    gameCode.killedPlayers = [];
+    
     var newGame = new Game(gameData);
     newGame.save((err, game) => {
         if (err) {
