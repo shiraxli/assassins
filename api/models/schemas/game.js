@@ -7,7 +7,7 @@ const validator = require('email-validator');
 var Player = new Schema({
         firstName: {type: String, trim: true, required: true},
         lastName: {type: String, trim: true, required: true},
-        email: {type: String, required: true},
+        email: {type: String, required: true, index: true},
         password: {type: String, required: true},
         target: [{Target: {target: Schema.ObjectId, timeAssigned: Date, timeKilled: Date}}],
         isLiving: Boolean,
@@ -25,10 +25,10 @@ var Player = new Schema({
 // parent schema
 // game status: 0 sign-up, 1 active, 2 done
 var gameSchema = new Schema({
-    email: {type: String, trim: true, required: true},
+    email: {type: String, trim: true, required: true, index: true},
     password: {type: String, trim: true, required: true},
     gameStatus: {type: Number, trim: true},
-    gameCode: {type: String, required: true, unique: true, trim: true},
+    gameCode: {type: String, required: true, unique: true, trim: true, index: true},
     startDate: Date,
     livingPlayers: [Player],
     killedPlayers: [Player],
