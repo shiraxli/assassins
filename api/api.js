@@ -45,8 +45,6 @@ router.param('id', (req, res, next, id) => {
 router.route('/games')
 	.get(games.getAllGames)
 	.post(games.createGame);
-router.route('/games/active')
-	.get(games.getActiveGames);
 router.route('/games/:gamecode')
 	.get(games.getGameById)
 	.put(games.updateGameById)

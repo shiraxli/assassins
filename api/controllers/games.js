@@ -28,9 +28,6 @@ exports.createGame = (req, res, next) => {
         gameData.gameStatus = 0;
     } 
     
-    gameData.livingPlayers = [];
-    gameData.killedPlayers = [];
-    
     var newGame = new Game(gameData);
     newGame.save((err, game) => {
         if (err) {
@@ -43,7 +40,10 @@ exports.createGame = (req, res, next) => {
 }
 
 exports.getAllGames = (req, res, next) => {
-    Game.find({}, (err, games) => {
+    var gameQuery = {};
+    if (req.query.active === "true")
+        gameQuery[gameStatus] = 1;
+    Game.find(gameQuery, (err, games) => {
         if (err) return next(err);
         res.json(games);
     });
