@@ -45,9 +45,10 @@ router.route('/games')
 	.get(games.getAllGames)
 	.post(games.createGame);
 router.route('/games/:gameCode')
-	.get(games.getGameById)
-	.put(games.updateGameById)
-	.delete(games.deleteGameById);
+	.get(games.getGameByCode)
+	.put(games.updateGameByCode)
+	.delete(games.deleteGameByCode)
+    .post(games.startGame);
 
 router.route('/games/:gameCode/players')
 	.get(players.getAllPlayers)
@@ -80,7 +81,10 @@ if (app.get('env') === 'development') {
 
 // production error handler
 app.use(function(err, req, res, next) {
-    res.status(err.status || 500).send();
+    if (err.status) {
+        return res.status(err.status).send(err.message);
+    }
+    res.status(500).send();
 });
 
 var server = app.listen(config.port);

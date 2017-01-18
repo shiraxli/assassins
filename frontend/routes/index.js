@@ -18,6 +18,14 @@ router.post('/games', (req, res, next) => {
     }).pipe(res);
 });
 
+router.get('/join', (req, res, next) => {
+    return res.render('join', { title: 'Join' });
+});
+
+router.get('/login', (req, res, next) => {
+    return res.render('login', {title: 'Login' });
+});
+
 module.exports = router;
 
 
