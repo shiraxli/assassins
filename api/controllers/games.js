@@ -50,7 +50,7 @@ exports.getGameByCode = (req, res, next) => {
     Game.findOne({gameCode: req.params.gameCode}, (err, game) => {
         if (err) return next(err);
         if (!game) return res.status(404).send('No game with that code');
-        res.json(game);
+        return res.json(game);
     });
 };
 
