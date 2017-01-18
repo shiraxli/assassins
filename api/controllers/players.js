@@ -129,7 +129,16 @@ exports.submitKill = (req, res, next)  => {
 };
 
 exports.getUnapprovedKills = (req, res, next) => {
-    
+    Game.findOne({ gameCode: req.params.gameCode }, (err, game) => {
+        if (err) return next(err);
+        if (!game) return res.status(400).send('No game with that game code');
+        var unapproved = [];
+        for (var i = 0; i < game.livingPlayers.length; i++) {
+            if(game.livingPlayers[i].killedBy.killer)
+                unapproved.push(games.livingPlayers[i]);
+        }
+        return res.json(unapproved);
+    });
 }
 
 exports.approveKill = (req, res, next) => {
