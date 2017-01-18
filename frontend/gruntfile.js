@@ -46,6 +46,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-uglify');
 
-    grunt.registerTask('default', ['stylus', 'uglify', 'watch']);
+    grunt.registerTask('default', ['stylus', 'uglify']);
     grunt.registerTask('publish', ['stylus', 'uglify']);
 };
