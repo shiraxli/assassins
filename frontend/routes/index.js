@@ -8,7 +8,7 @@ router.get('/', (req, res, next) => {
 });
 
 router.get('/games', (req, res, next) => {
-    return res.render('game', { title: 'Create Game' });
+    return res.render('games', { title: 'Create Game' });
 });
 router.post('/games', (req, res, next) => {
     // fix the path
@@ -28,8 +28,12 @@ router.post('/join', (req, res, next) => {
     }).pipe(res);
 });
 
-router.get('/login', (req, res, next) => {
-    return res.render('login', {title: 'Login' });
+router.get('/login/player', (req, res, next) => {
+    return res.render('playerlogin', {title: 'Player Login' });
+});
+
+router.get('/login/admin', (req, res, next) => {
+    return res.render('adminlogin', {title: 'Admin Login' });
 });
 
 module.exports = router;
