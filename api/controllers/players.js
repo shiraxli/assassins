@@ -113,5 +113,46 @@ exports.deletePlayerById = (req, res, next) => {
         return game.save();
     }).then(function (player) {
         return res.sendStatus(200);
-    }).catch(function (err) { return next(err); });
+    }).catch(next);
+};
+
+// 
+exports.submitKill = (req, res, next)  => {
+    helper.findPlayerById(req.params.gameCode, req.params.id, (err, player, game) => {
+        if (err) return next(err);
+        if (!player) return res.status(404).send('No player with that id');
+        newKill = player.target.victim;
+        newKill.killedBy.killer = player;
+        newKill.killedBy.killTime = player.target.timeKilled = getTime(); 
+        return res.sendStatus(200);
+    });
+};
+
+exports.approveKill = (req, res, next) => {
+    helper.findPlayerById(req.params.gameCode, req.params.id, (err, player, game) => {
+        if (err) return next(err);
+        if (!player) return res.status(404).send('No player with that id');
+
+        // TODO : check time or unapprove kill?
+
+        deadVictim = player.target.victim;
+        player.target.victim = deadVictim.target;
+        player.target.timeAssigned = getTime();
+        player.target.timeKilled = null;
+        var found = false;
+        for (var i = 0; i < game.livingPlayers.length; i++) {
+            if (!found && String(game.livingPlayers[i]._id) === deadVictim.id) {
+                found = true;
+                game.livingPlayers.splice(i, 1);
+                game.markModified('livingPlayers');
+            }
+        }
+        if(found) {
+            game.killedPlayers.push(deadVictim);
+            game.markModified('killedPlayers');
+        }
+        else
+            return res.status(404).send('No user with that id');
+    });
+};
 };
