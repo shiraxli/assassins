@@ -31,14 +31,16 @@ exports.createPlayer = (req, res, next) => {
     playerData.password = bcrypt.hashSync(req.body.password);
 
     var newPlayer = new Player(playerData);
-    Game.findOne({ gameCode: req.params.gameCode }).exec().then(function (game) {
+    Game.findOne({ gameCode: req.params.gameCode }, (err, game) => {
+        if (err) return next(err);
         if (!game) return res.status(404).send('No game with that game code');
         game.livingPlayers.push(newPlayer);
         game.markModified('livingPlayers');
-        return game.save();
-    }).then(function (game) {
-        return res.sendStatus(200);
-    }).catch(function (err) { return next(err); });
+        game.save((err) => {
+            if (err) return next(err);
+            return res.sendStatus(200);
+        });
+    });
 };
 
 exports.getAllPlayers = (req, res, next) => {
@@ -92,7 +94,8 @@ exports.updatePlayerById = (req, res, next) => {
 };
 
 exports.deletePlayerById = (req, res, next) => {
-    Game.findOne({ gameCode: req.params.gameCode }).exec().then(function(game) {
+    Game.findOne({ gameCode: req.params.gameCode }, (err, game) => {
+        if (err) return next(err);
         if (!game) return res.status(404).send('No game with that game code');
         var found = false;
         for (var i = 0; i < game.livingPlayers.length; i++) {
@@ -110,8 +113,9 @@ exports.deletePlayerById = (req, res, next) => {
             }
         }
         if (!found) return res.status(404).send('No user with that id');
-        return game.save();
-    }).then(function (player) {
-        return res.sendStatus(200);
-    }).catch(function (err) { return next(err); });
+        game.save((err) => {
+            if (err) return next(err);
+            return res.sendStatus(200);
+        });
+    })
 };

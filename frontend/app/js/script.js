@@ -41,7 +41,7 @@ function submitGamesForm() {
         data.setRules = form.setRules.value;
     }
 
-   if (errorMessage) return displayError(errorMessage);
+    if (errorMessage) return displayError(errorMessage);
 
     fetch('/games', {
         headers: {
@@ -55,8 +55,57 @@ function submitGamesForm() {
            // localStorage.token = result.token;
            window.location = '/games/' + result.gameCode + '/players'
         });
+    }).catch(submitError);
+}
+
+function joinGame() {
+    var data = {};
+    var errorMessage = '';
+    if (!form.gameCode.value) {
+        error(form.gameCode);
+        errorMessage += 'Please Enter Game Code; ';
+    } else {
+        data.gameCode = form.gameCode.value;
     }
-    .catch(submitError(errorMessage));
+    if (!form.firstName.value) {
+        error(form.firstName);
+        errorMessage += 'Please Enter First Name; ';
+    } else {
+        data.firstName = form.firstName.value;
+    }
+    if (!form.lastName.value) {
+        error(form.lastName);
+        errorMessage += 'Please Enter Last Name; ';
+    } else {
+        data.lastName = form.lastName.value;
+    }
+    if (!form.email.value || !validateEmail(form.email)) {
+        error(form.email);
+        errorMessage += 'Please Enter Proper Email; ';
+    } else {
+        data.email = form.email.value;
+    }
+    if (!form.password.value) {
+        error(form.password);
+        errorMessage += 'Please Enter Password; ';
+    } else {
+        data.password = form.password.value
+    }
+
+    if (errorMessage) return displayError(errorMessage);
+
+    fetch('/join', {
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        method: 'POST',
+        body: JSON.stringify(data)
+    }).then(function(res) {
+        if (!res.ok) return submitError(res);
+        // localStorage.token = result.token;
+        else console.log('joined a game!');
+        //window.location = '/player';
+    }).catch(submitError);
 }
 /////////////// Form Validation Function ///////////////
 

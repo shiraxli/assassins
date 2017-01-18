@@ -13,7 +13,7 @@ router.get('/games', (req, res, next) => {
 router.post('/games', (req, res, next) => {
     // fix the path
     request.post({
-        url:config.apiUrl + '/games' + req.body.gameCode,
+        url: config.apiUrl + '/games' + req.body.gameCode,
         form: req.body
     }).pipe(res);
 });
@@ -21,15 +21,15 @@ router.post('/games', (req, res, next) => {
 router.get('/join', (req, res, next) => {
     return res.render('join', { title: 'Join' });
 });
+router.post('/join', (req, res, next) => {
+    request.post({
+        url: config.apiUrl + '/games/' + req.body.gameCode + '/players',
+        form: req.body
+    }).pipe(res);
+});
 
 router.get('/login', (req, res, next) => {
     return res.render('login', {title: 'Login' });
 });
 
 module.exports = router;
-
-
-
-
-
-
