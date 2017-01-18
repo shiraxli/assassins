@@ -17,7 +17,7 @@ var playerSchema = new Schema({
     killedBy: {
         killer: Schema.ObjectId,
         killTime: Date
-    }
+    },
     deathApproved: {type: Boolean, default: false},
     token: String
 },

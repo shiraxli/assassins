@@ -155,4 +155,3 @@ exports.approveKill = (req, res, next) => {
             return res.status(404).send('No user with that id');
     });
 };
-};
