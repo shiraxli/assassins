@@ -1,0 +1,8 @@
+extends template
+
+block content
+    form#js-login-from.form
+        h1.form-title Admin Login
+        input.form-input(type='text' name='gameCode' placeholder='Game Code')
+        input.form-input(type='password' name='password' placeholder='Password')
+        button.form-input.button(type='button' onclick='submitForm') Submit   
