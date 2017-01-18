@@ -11,4 +11,8 @@ router.get('/admin', (req, res, next) => {
     return res.render('admin', { title: 'Admin' });
 });
 
+router.get('/join', (req, res, next) => {
+    return res.render('join', { title: 'Join' });
+});
+
 module.exports = router;
