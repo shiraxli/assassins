@@ -9,7 +9,7 @@
     "dev": "npm run mongo & node api.js",
     "windows": "echo \"starting new server...\" && mongod -f models/mongodb/wmongod.conf & echo $! > .mongo_pid & node api.js",
     "mongo-stop": "kill $(cat .mongo_pid) && rm .mongo_pid",
-    "start": "node api.js",
+    "start": "node api.js"
   },
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
