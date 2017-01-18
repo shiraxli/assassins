@@ -1,4 +1,6 @@
-const Game = require('../models/schemas/game');
+const schemas = require('../models/schemas/game');
+const Game = schemas[0];
+const Player = schemas[1];
 const bcrypt = require('bcrypt-nodejs');
 
 exports.createPlayer = (req, res, next) => {
@@ -53,10 +55,11 @@ exports.getAllPlayers = (req, res, next) => {
 
 
 exports.getPlayerById = (req, res, next) => {
-    Game.findOne({ game: req.params.gameCode }, (err, game) => {
+    Game.findOne({ gameCode: req.params.gameCode }, (err, game) => {
         if (err) return next(err);
+        if (!game) return res.status(404).send('No game with that game code');
         for (var i = 0; i < game.allPlayers.length; i++) {
-            if (game.allPlayers[i]._id === req.params.id)
+            if (String(game.allPlayers[i]._id) === req.params.id)
                 return res.json(game.allPlayers[i]);
         }
         return res.status(404).send('No player with that id');

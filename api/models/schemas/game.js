@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt-nodejs');
 const validator = require('email-validator');
 
 // child schema
-var Player = new Schema({
+var playerSchema = new Schema({
     firstName: {type: String, trim: true, required: true},
     lastName: {type: String, trim: true, required: true},
     email: {type: String, required: true, index: true},
@@ -37,8 +37,8 @@ var gameSchema = new Schema({
     startDate: Date,
     gameName: String,
     rules: [String],
-    livingPlayers: [Player],
-    killedPlayers: [Player],
+    livingPlayers: [playerSchema],
+    killedPlayers: [playerSchema],
     token: String
 },
                             {
@@ -69,7 +69,7 @@ gameSchema.methods.comparePassword = function(pw, callback) {
     });
 };
 
-Player.methods.comparePlayerPassword = function(pw, callback) {
+playerSchema.methods.comparePlayerPassword = function(pw, callback) {
     bcrypt.compare(pw, this.password, (err, isMatch) => {
         if (err) return callback(err);
         callback(null, isMatch);
@@ -82,9 +82,12 @@ gameSchema.virtual('allPlayers').get(function() {
     return allPlayers;
 });
 
-var Game = mongoose.model('Game', gameSchema);
+var schemas = [
+    mongoose.model('Game', gameSchema),
+    mongoose.model('Player', playerSchema)
+]
 
-module.exports = Game;
+module.exports = schemas;
 
 
 

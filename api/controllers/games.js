@@ -1,4 +1,6 @@
-const Game = require('../models/schemas/game');
+const schemas = require('../models/schemas/game');
+const Game = schemas[0];
+const Player = schemas[1];
 
 exports.createGame = (req, res, next) => {
 
