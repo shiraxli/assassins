@@ -13,7 +13,7 @@ exports.createPlayer = (req, res, next) => {
 
     var playerData = {};
     playerData.firstName = req.body.firstName;
-    playerData.lastName = req.body.lastName;  
+    playerData.lastName = req.body.lastName;
 
     // validate email
     // http://emailregex.com
@@ -33,8 +33,7 @@ exports.createPlayer = (req, res, next) => {
         if (!game) return res.status(404).send('No game with that gameCode');
         game.livingPlayers.push(newPlayer);
         game.markModified('livingPlayers');
-    })
-});
+    });
 };
 
 exports.getAllPlayers = (req, res, next) => {
@@ -63,7 +62,7 @@ exports.getPlayerById = (req, res, next) => {
 };
 
 
-// TO DO 
+// TO DO
 
 exports.updatePlayerById = (req, res, next) => {
     Player.findByIdAndUpdate(req.params.id, req.body, {new: true}, (err, user) => {
