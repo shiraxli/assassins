@@ -33,7 +33,6 @@ exports.createPlayer = (req, res, next) => {
     var newPlayer = new Player(playerData);
     Game.findOne({ gameCode: req.params.gameCode }).exec().then(function (game) {
         if (!game) return res.status(404).send('No game with that game code');
-        //game.livingPlayers.push(playerData);
         game.livingPlayers.push(newPlayer);
         game.markModified('livingPlayers');
         return game.save();
@@ -58,7 +57,7 @@ exports.getAllPlayers = (req, res, next) => {
 
 
 exports.getPlayerById = (req, res, next) => {
-    helper.findPlayerById(req.params.gameCode, req.params.id, (err, player) => {
+    helper.findPlayerById(req.params.gameCode, req.params.id, (err, player, game) => {
         if (err) return next(err);
         if (!player) return res.status(404).send('No player with that id');
         return res.json(player);
@@ -69,15 +68,50 @@ exports.getPlayerById = (req, res, next) => {
 // TO DO
 
 exports.updatePlayerById = (req, res, next) => {
-    findPlayerById(req.params.gameCode, req.params.id, (err, player) => {
+    helper.findPlayerById(req.params.gameCode, req.params.id, (err, player, game) => {
         if (err) return next(err);
         if (!player) return res.status(404).send('No user with that ID');
-            //update user or some shit
-        return res.json(player);
+
+        if (req.body.firstName) player.firstName = req.body.firstName;
+        if (req.body.lastName) player.lastName = req.body.lastName;
+        // validate email
+        // http://emailregex.com
+        if (req.body.email) {
+            if (!(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(req.body.email)))
+                return res.status(400).send('Invalid email');
+            else
+                player.email = req.body.email;
+        };
+        if (req.body.password) player.password = bcrypt.hashSync(req.body.password);
+
+        game.save((err) => {
+            if (err) return next(err);
+            return res.json(player);
+        });
     });
 };
 
 exports.deletePlayerById = (req, res, next) => {
-    // delete user or something
-    return;
+    Game.findOne({ gameCode: req.params.gameCode }).exec().then(function(game) {
+        if (!game) return res.status(404).send('No game with that game code');
+        var found = false;
+        for (var i = 0; i < game.livingPlayers.length; i++) {
+            if (String(game.livingPlayers[i]._id) === req.params.id) {
+                found = true;
+                game.livingPlayers.splice(i, 1);
+                game.markModified('livingPlayers');
+            }
+        }
+        for (var i = 0; i < game.killedPlayers.length; i++) {
+            if (String(game.killedPlayers[i]._id) === req.params.id) {
+                found = true;
+                game.killedPlayers.splice(i, 1);
+                game.markModified('killedPlayers');
+            }
+        }
+        if (!found) return res.status(404).send('No user with that id');
+        return game.save();
+    }).then(function (player) {
+        return res.sendStatus(200);
+    }).catch(function (err) { return next(err); });
 };

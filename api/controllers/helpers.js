@@ -4,16 +4,16 @@ const Player = schemas[1];
 
 exports.findPlayerById = (gameCode, id, callback) => {
     Game.findOne({ gameCode: gameCode }, (err, game) => {
-        if (err) return callback(err, null);
+        if (err) return callback(err);
         if (!game) {
             var e = new Error('No game with that game code');
             e.status = 404;
-            return callback(e, null);
+            return callback(e);
         };
         for (var i = 0; i < game.allPlayers.length; i++) {
             if (String(game.allPlayers[i]._id) === id)
-                return callback(null, game.allPlayers[i]);
+                return callback(null, game.allPlayers[i], game);
         };
-        return callback(null, null);
+        return callback(null);
     });
 };

@@ -26,7 +26,7 @@ var playerSchema = new Schema({
     },
 });
 
-Player.virtual('fullName').get(function() {
+playerSchema.virtual('fullName').get(function() {
     return this.firstName + ' ' + this.lastName;
 });
 
@@ -96,7 +96,7 @@ module.exports = schemas;
 
 // examples for testing in postman
 
-// game example 
+// game example
 
 /*
 {
