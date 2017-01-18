@@ -1,6 +1,6 @@
 var form = document.forms[0];
 
-function submitForm {
+function submitForm() {
     var data = {};
     var errorMessage = '';
 
