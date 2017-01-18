@@ -86,7 +86,7 @@ exports.updatePlayerById = (req, res, next) => {
 
         game.save((err) => {
             if (err) return next(err);
-            return res.json(player);
+            return res.sendStatus(200);
         });
     });
 };
@@ -122,8 +122,10 @@ exports.submitKill = (req, res, next)  => {
         if (err) return next(err);
         if (!player) return res.status(404).send('No player with that id');
         newKill = player.target.victim;
+        console.log(newKill);
         newKill.killedBy.killer = player;
         newKill.killedBy.killTime = player.target.timeKilled = getTime(); 
+        game.markModified('livingPlayers');
         return res.sendStatus(200);
     });
 };
