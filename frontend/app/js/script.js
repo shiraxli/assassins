@@ -17,37 +17,45 @@ function submitOnEnterKey(submitFunction, targetForm) {
 
 }
 
-function submitForm() {
+function submitGamesForm() {
     var data = {};
     var errorMessage = '';
 
     if (form.gameName.value) data.gameName = form.gameName.value;
     if (!form.gameCode.value) {
-        errorMessage += 'Please Enter Game Code';
+        errorMessage += 'Please Enter Game Code; ';
     } else {
         data.gameCode = form.gameCode.value;
     } 
-    if (!form.email.value && !validateEmail(form.email)) {
-        errorMessage += 'Please Enter Proper Email';
+    if (!form.email.value || !validateEmail(form.email)) {
+        errorMessage += 'Please Enter Proper Email; ';
     } else {
         data.email = form.email.value;
     }
     if (!form.password.value) {
-        errorMessage += 'Please Enter Password';
+        errorMessage += 'Please Enter Password; ';
     } else {
         data.password = form.password.value
     }
     if (form.setRules.value) {
         data.setRules = form.setRules.value;
-    } 
-    
-    fetch('/', {
+    }
+
+   if (errorMessage) return displayError(errorMessage);
+
+    fetch('/games', {
         headers: {
             'Content-Type': 'application/json'
         },
         method: 'POST',
         body: JSON.stringify(data)
-    }).then(submitSuccess)
+    }).then(function(res) {
+        if (!res.ok) return submitError(res)
+        else return res.json.then(function(result) {
+           // localStorage.token = result.token;
+           window.location = '/games/' + result.gameCode + '/players'
+        });
+    }
     .catch(submitError(errorMessage));
 }
 /////////////// Form Validation Function ///////////////
@@ -65,16 +73,24 @@ function validateEmail(target, isRequired) {
 
 /////////////// Form Submit Callbacks //////////////////
 
-function submitSuccess() {
-    
+function submitSuccess(res) {
+    if (!res.ok) return submitError(res);
+    console.log('Successfully Submitted Form');
 }
 
-function submitError(message) {
-
+function submitError(res, message) {
+    console.log(message);
+    if (res.status >= 400 && res.status < 500)
+        return res.text().then(function(ErrorMessage) {displayError(ErrorMessage)});
+    if(message)
+        return displayError(message);
+    return displayError('There Was a Problem Somewhere in The Program');
 }
 
-function displayError() {
-
+function displayError(message) {
+    var errorDiv = document.getElementById('js-error-message');
+    errorDiv.innerHTML = message;
+    errorDiv.style.visibility = 'visible';
 }
 
 

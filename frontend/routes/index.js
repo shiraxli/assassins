@@ -7,8 +7,21 @@ router.get('/', (req, res, next) => {
     return res.render('index', { title: 'Home' });
 });
 
-router.get('/admin', (req, res, next) => {
-    return res.render('admin', { title: 'Admin' });
+router.get('/games', (req, res, next) => {
+    return res.render('game', { title: 'Create Game' });
+});
+router.post('/games', (req, res, next) => {
+    // fix the path
+    request.post({
+        url:config.apiUrl + '/games' + req.body.gameCode,
+        form: req.body
+    }).pipe(res);
 });
 
 module.exports = router;
+
+
+
+
+
+
