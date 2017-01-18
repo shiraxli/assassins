@@ -57,6 +57,7 @@ exports.getGameByCode = (req, res, next) => {
 };
 
 exports.updateGameByCode = (req, res, next) => {
+    console.log("updating game by code...");
     Game.findOneAndUpdate(req.params.gameCode, req.body, (err, game) => {
         if (err) return next(err);
         if (!game) return res.status(404).send('No game with that code');

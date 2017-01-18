@@ -91,7 +91,10 @@ module.exports = schemas;
 
 
 
-// example for testing in postman
+// examples for testing in postman
+
+// game example 
+
 /*
 {
     "email": "hjames@alpinedistrict.org",
@@ -99,4 +102,17 @@ module.exports = schemas;
     "gameCode": "LH2017",
     "gameName": "Lowell House 2017",
 }
+*/
+
+// player example
+
+/*
+
+{
+    "firstName": "Dong",
+    "lastName": "Hur",
+    "email": "dong@gmail.com",
+    "password": "dong"
+}
+
 */
