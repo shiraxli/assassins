@@ -8,7 +8,7 @@ router.get('/', (req, res, next) => {
 });
 
 router.get('/games', (req, res, next) => {
-    return res.render('game', { title: 'Create Game' });
+    return res.render('games', { title: 'Create Game' });
 });
 router.post('/games', (req, res, next) => {
     // fix the path
