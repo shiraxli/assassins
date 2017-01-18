@@ -3,6 +3,7 @@ extends template
 block content
     h1.title.center Assassins
     #home-page-buttons
-        button.home-page-button(type='button' onclick='') Create a New Game
+        a(href='/admin')
+            button.home-page-button(type='button') Create a New Game
         button.home-page-button(type='button' onclick='') Join a New Game
         button.home-page-button(type='button' onclick='') Login to Existing Game
