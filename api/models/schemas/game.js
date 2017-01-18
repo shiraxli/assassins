@@ -24,8 +24,11 @@ var playerSchema = new Schema({
         createdAt: 'createdDate',
         updatedAt: 'updatedDate'
     },
-}
-                       );
+});
+
+Player.virtual('fullName').get(function() {
+    return this.firstName + ' ' + this.lastName;
+});
 
 // parent schema
 // game status: 0 sign-up, 1 active, 2 done

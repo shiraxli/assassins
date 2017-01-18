@@ -80,7 +80,10 @@ if (app.get('env') === 'development') {
 
 // production error handler
 app.use(function(err, req, res, next) {
-    res.status(err.status || 500).send();
+    if (err.status) {
+        return res.status(err.status).send(err.message);
+    }
+    res.status(500).send();
 });
 
 var server = app.listen(config.port);
