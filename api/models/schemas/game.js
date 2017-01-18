@@ -25,7 +25,7 @@ var Player = new Schema({
             updatedAt: 'updatedDate'
         },
     }
-});
+);
 
 // parent schema
 // game status: 0 sign-up, 1 active, 2 done
@@ -60,7 +60,7 @@ gameSchema.pre('save', function(callback){
         this.hash = bcrypt.hashSync(this.password);
 
     callback();
-};
+});
 
 gameSchema.methods.comparePassword = function(pw, callback) {
     bcrypt.compare(pw, this.password, (err, isMatch) => {
