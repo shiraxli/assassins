@@ -7,13 +7,13 @@ router.get('/', (req, res, next) => {
     return res.render('index', { title: 'Home' });
 });
 
-router.get('/games', (req, res, next) => {
-    return res.render('games', { title: 'Create Game' });
+router.get('/create', (req, res, next) => {
+    return res.render('create', { title: 'Create Game' });
 });
-router.post('/games', (req, res, next) => {
+router.post('/create', (req, res, next) => {
     // fix the path
     request.post({
-        url:config.apiUrl + '/games' + req.body.gameCode,
+        url:config.apiUrl + '/games',
         form: req.body
     }).pipe(res);
 });

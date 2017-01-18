@@ -17,7 +17,7 @@ function submitOnEnterKey(submitFunction, targetForm) {
 
 }
 
-function submitGamesForm() {
+function submitCreateForm() {
     var data = {};
     var errorMessage = '';
 
@@ -43,17 +43,15 @@ function submitGamesForm() {
 
    if (errorMessage) return displayError(errorMessage);
 
-    fetch('/games', {
+    fetch('/create', {
         headers: {'Content-Type': 'application/json'},
         method: 'POST',
         body: JSON.stringify(data)
     }).then(function(res) {
         if (!res.ok) return submitError(res)
-        else return res.json.then(function(result) {
-           window.location = '/games/' + result.gameCode + '/players'
-        }).catch(submitError(errorMessage));
+        window.location = '/';
     }).catch(submitError());
-    }
+}
 
 /////////////// Form Validation Function ///////////////
 
