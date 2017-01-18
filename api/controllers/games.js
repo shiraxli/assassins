@@ -16,7 +16,7 @@ exports.createGame = (req, res, next) => {
         if (!(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(req.body.email)))
             return res.status(400).send('Invalid email');
         else
-            gamedata.email = req.body.email;
+            gameData.email = req.body.email;
     }
 
     gameData.gameCode = req.body.gameCode;
