@@ -46,34 +46,28 @@ exports.getAllGames = (req, res, next) => {
     });
 };
 
-exports.getGameById = (req, res, next) => {
-    Game.findById(req.params.id, (err, game) => {
+exports.getGameByCode = (req, res, next) => {
+    console.log("gameCode " + req.params.gameCode);
+    Game.find({gameCode: req.params.gameCode}, (err, game) => {
         if (err) return next(err);
-        if (!game) return res.status(404).send('No game with that ID');
+        if (!game) return res.status(404).send('No game with that code');
         res.json(game);
     });
 };
 
-exports.getActiveGames = (req, res, next) => {
-    Game.find({gameStatus: 1}, (err, users) => {
+exports.updateGameByCode = (req, res, next) => {
+    Game.findOneAndUpdate(req.params.gameCode, req.body, (err, game) => {
         if (err) return next(err);
-        res.json(users);
-    });
-};
-
-exports.updateGameById = (req, res, next) => {
-    User.findOneAndUpdate(req.params.id, req.body, (err, user) => {
-        if (err) return next(err);
-        if (!user) return res.status(404).send('No game with that ID');
+        if (!game) return res.status(404).send('No game with that code');
         return res.sendStatus(200);
     });
 };
 
 
-exports.deleteGameById = (req, res, next) => {
-    Game.findOneAndRemove(req.params.id, (err, user) => {
+exports.deleteGameByCode = (req, res, next) => {
+    Game.findOneAndRemove(req.params.gameCode, (err, game) => {
         if (err) return next(err);
-        if (!user) return res.status(404).send('No game with that ID');
+        if (!game) return res.status(404).send('No game with that code');
         return res.sendStatus(200);
     });
 }
