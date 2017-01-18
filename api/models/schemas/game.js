@@ -107,7 +107,7 @@ module.exports = schemas;
 }
 */
 
-// player example
+// players examples
 
 /*
 
@@ -116,6 +116,34 @@ module.exports = schemas;
     "lastName": "Hur",
     "email": "dong@gmail.com",
     "password": "dong"
+}
+
+{
+    "firstName": "Jason",
+    "lastName": "Thong",
+    "email": "jason@gmail.com",
+    "password": "jason"
+}
+
+{
+    "firstName": "Hailey",
+    "lastName": "James",
+    "email": "hailey@gmail.com",
+    "password": "hailey"
+}
+
+{
+    "firstName": "Shira",
+    "lastName": "Li",
+    "email": "shira@gmail.com",
+    "password": "shira"
+}
+
+{
+    "firstName": "Tiff",
+    "lastName": "Yu",
+    "email": "tiff@gmail.com",
+    "password": "tiff"
 }
 
 */

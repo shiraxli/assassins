@@ -83,17 +83,26 @@ exports.startGame = (req, res, next) => {
         console.log(game.livingPlayers);
         // shuffle array
         game.livingPlayers = shuffle(game.livingPlayers);
-        console.log(livingPlayers);
+        console.log(game.livingPlayers);
 
         for (var i = 0; i < game.livingPlayers.length; i++) {
             if (i === game.livingPlayers.length -1) {
-                game.livingPlayers[i].target = game.livingPlayers[0];
+                game.livingPlayers[i].target.victim = game.livingPlayers[0];
             } else {
-                game.livingPlayers[i].target = game.livingPlayers[i++];
+                game.livingPlayers[i].target.victim = game.livingPlayers[i+1];
             }
+            game.livingPlayers[i].target.timeAssigned = new Date();
         }
-        game.markModified(livingPlayers);
-        game.save();
+        game.gameStatus = 1;
+        game.markModified("livingPlayers", "gameStatus");
+        game.save((err) => {
+            if (err) {
+                if (err.code === 11000)
+                    return res.status(400).send('Error assigning targets');
+                return next(err);
+            }
+            return res.sendStatus(200);
+        });
     })
 }
 
