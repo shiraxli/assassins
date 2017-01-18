@@ -92,8 +92,8 @@ module.exports = Game;
 /*
 {
     "email": "hjames@alpinedistrict.org",
-        "password": "hjames",
-            "gameCode": "LH2017",
-                "gameName": "Lowell House 2017",
+    "password": "hjames",
+    "gameCode": "LH2017",
+    "gameName": "Lowell House 2017",
 }
 */

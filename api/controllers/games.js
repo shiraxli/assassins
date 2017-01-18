@@ -49,31 +49,24 @@ exports.getAllGames = (req, res, next) => {
 exports.getGameByCode = (req, res, next) => {
     Game.findOne({gameCode: req.params.gameCode}, (err, game) => {
         if (err) return next(err);
-        if (!game) return res.status(404).send('No game with that ID');
+        if (!game) return res.status(404).send('No game with that code');
         res.json(game);
     });
 };
 
-exports.getActiveGames = (req, res, next) => {
-    Game.find({gameStatus: 1}, (err, users) => {
-        if (err) return next(err);
-        res.json(users);
-    });
-};
-
 exports.updateGameByCode = (req, res, next) => {
-    User.findOneAndUpdate(req.params.gameCode, req.body, (err, user) => {
+    Game.findOneAndUpdate(req.params.gameCode, req.body, (err, game) => {
         if (err) return next(err);
-        if (!user) return res.status(404).send('No game with that ID');
+        if (!game) return res.status(404).send('No game with that code');
         return res.sendStatus(200);
     });
 };
 
 
 exports.deleteGameByCode = (req, res, next) => {
-    Game.findOneAndRemove(req.params.gameCode, (err, user) => {
+    Game.findOneAndRemove(req.params.gameCode, (err, game) => {
         if (err) return next(err);
-        if (!user) return res.status(404).send('No game with that ID');
+        if (!game) return res.status(404).send('No game with that code');
         return res.sendStatus(200);
     });
 }
