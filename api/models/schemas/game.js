@@ -96,7 +96,7 @@ module.exports = schemas;
 
 // examples for testing in postman
 
-// game example 
+// game example
 
 /*
 {
