@@ -128,6 +128,10 @@ exports.submitKill = (req, res, next)  => {
     });
 };
 
+exports.getUnapprovedKills = (req, res, next) => {
+    
+}
+
 exports.approveKill = (req, res, next) => {
     helper.findPlayerById(req.params.gameCode, req.params.id, (err, player, game) => {
         if (err) return next(err);
