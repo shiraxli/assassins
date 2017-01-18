@@ -1,6 +1,7 @@
 const schemas = require('../models/schemas/game');
 const Game = schemas[0];
 const Player = schemas[1];
+const helper = require('./helpers');
 const bcrypt = require('bcrypt-nodejs');
 
 exports.createPlayer = (req, res, next) => {
@@ -29,9 +30,11 @@ exports.createPlayer = (req, res, next) => {
 
     playerData.password = bcrypt.hashSync(req.body.password);
 
+    var newPlayer = new Player(playerData);
     Game.findOne({ gameCode: req.params.gameCode }).exec().then(function (game) {
         if (!game) return res.status(404).send('No game with that game code');
-        game.livingPlayers.push(playerData);
+        //game.livingPlayers.push(playerData);
+        game.livingPlayers.push(newPlayer);
         game.markModified('livingPlayers');
         return game.save();
     }).then(function (game) {
@@ -55,14 +58,10 @@ exports.getAllPlayers = (req, res, next) => {
 
 
 exports.getPlayerById = (req, res, next) => {
-    Game.findOne({ gameCode: req.params.gameCode }, (err, game) => {
+    helper.findPlayerById(req.params.gameCode, req.params.id, (err, player) => {
         if (err) return next(err);
-        if (!game) return res.status(404).send('No game with that game code');
-        for (var i = 0; i < game.allPlayers.length; i++) {
-            if (String(game.allPlayers[i]._id) === req.params.id)
-                return res.json(game.allPlayers[i]);
-        }
-        return res.status(404).send('No player with that id');
+        if (!player) return res.status(404).send('No player with that id');
+        return res.json(player);
     });
 };
 
@@ -70,17 +69,15 @@ exports.getPlayerById = (req, res, next) => {
 // TO DO
 
 exports.updatePlayerById = (req, res, next) => {
-    Player.findByIdAndUpdate(req.params.id, req.body, {new: true}, (err, user) => {
+    findPlayerById(req.params.gameCode, req.params.id, (err, player) => {
         if (err) return next(err);
-        if (!user) return res.status(404).send('No user with that ID');
-        return res.json(user);
+        if (!player) return res.status(404).send('No user with that ID');
+            //update user or some shit
+        return res.json(player);
     });
 };
 
 exports.deletePlayerById = (req, res, next) => {
-    Player.findByIdAndRemove(req.params.id, (err, user) => {
-        if (err) return next(err);
-        if (!user) return res.status(404).send('No user with that ID');
-        return res.sendStatus(200);
-    });
+    // delete user or something
+    return;
 };
