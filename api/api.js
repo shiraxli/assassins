@@ -45,15 +45,15 @@ router.param('id', (req, res, next, id) => {
 router.route('/games')
 	.get(games.getAllGames)
 	.post(games.createGame);
-router.route('/games/:gamecode')
+router.route('/games/:gameCode')
 	.get(games.getGameById)
 	.put(games.updateGameById)
 	.delete(games.deleteGameById);
 
-router.route('/games/:gamecode/players')
+router.route('/games/:gameCode/players')
 	.get(players.getAllPlayers)
 	.post(players.createPlayer);
-router.route('/games/:gamecode/players/:id')
+router.route('/games/:gameCode/players/:id')
 	.get(players.getPlayerById)
 	.put(players.updatePlayerById)
 	.delete(players.deletePlayerById);
