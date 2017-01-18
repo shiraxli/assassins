@@ -26,7 +26,7 @@ exports.createGame = (req, res, next) => {
         gameData.gameStatus = req.body.gameStatus;
 
     var newGame = new Game(gameData);
-    newGame.save((err, game) => {
+    newGame.save((err) => {
         if (err) {
             if (err.code === 11000)
                 return res.status(400).send('Game code already registered');
@@ -47,15 +47,15 @@ exports.getAllGames = (req, res, next) => {
 };
 
 exports.getGameByCode = (req, res, next) => {
-    console.log("gameCode " + req.params.gameCode);
-    Game.find({gameCode: req.params.gameCode}, (err, game) => {
+    Game.findOne({gameCode: req.params.gameCode}, (err, game) => {
         if (err) return next(err);
         if (!game) return res.status(404).send('No game with that code');
-        res.json(game);
+        return res.json(game);
     });
 };
 
 exports.updateGameByCode = (req, res, next) => {
+    console.log("updating game by code...");
     Game.findOneAndUpdate(req.params.gameCode, req.body, (err, game) => {
         if (err) return next(err);
         if (!game) return res.status(404).send('No game with that code');

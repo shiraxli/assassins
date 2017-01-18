@@ -57,7 +57,7 @@ gameSchema.pre('save', function(callback){
     if (!this.password)
         return callback(new Error('Missing password'));
     if (this.isModified('password'))
-        this.hash = bcrypt.hashSync(this.password);
+        this.password = bcrypt.hashSync(this.password);
 
     callback();
 });
@@ -77,7 +77,9 @@ Player.methods.comparePlayerPassword = function(pw, callback) {
 };
 
 gameSchema.virtual('allPlayers').get(function() {
-    return this.livingPlayers.concat(this.deadPlayers);
+    var allPlayers = this.livingPlayers;
+    if (this.killedPlayers.length !== 0) allPlayers.concat(this.killedPlayers);
+    return allPlayers;
 });
 
 var Game = mongoose.model('Game', gameSchema);
@@ -86,7 +88,10 @@ module.exports = Game;
 
 
 
-// example for testing in postman
+// examples for testing in postman
+
+// game example 
+
 /*
 {
     "email": "hjames@alpinedistrict.org",
@@ -96,3 +101,15 @@ module.exports = Game;
 }
 */
 
+// player example
+
+/*
+
+{
+    "firstName": "Dong",
+    "lastName": "Hur",
+    "email": "dong@gmail.com",
+    "password": "dong"
+}
+
+*/
