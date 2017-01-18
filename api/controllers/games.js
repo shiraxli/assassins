@@ -57,8 +57,7 @@ exports.getGameByCode = (req, res, next) => {
 };
 
 exports.updateGameByCode = (req, res, next) => {
-    console.log("updating game by code...");
-    Game.findOneAndUpdate(req.params.gameCode, req.body, (err, game) => {
+    Game.findOneAndUpdate({ gameCode: req.params.gameCode }, req.body, (err, game) => {
         if (err) return next(err);
         if (!game) return res.status(404).send('No game with that code');
         return res.sendStatus(200);
@@ -67,7 +66,7 @@ exports.updateGameByCode = (req, res, next) => {
 
 
 exports.deleteGameByCode = (req, res, next) => {
-    Game.findOneAndRemove(req.params.gameCode, (err, game) => {
+    Game.findOneAndRemove({ gameCode: req.params.gameCode }, (err, game) => {
         if (err) return next(err);
         if (!game) return res.status(404).send('No game with that code');
         return res.sendStatus(200);
@@ -83,22 +82,31 @@ exports.startGame = (req, res, next) => {
         console.log(game.livingPlayers);
         // shuffle array
         game.livingPlayers = shuffle(game.livingPlayers);
-        console.log(livingPlayers);
+        console.log(game.livingPlayers);
 
         for (var i = 0; i < game.livingPlayers.length; i++) {
             if (i === game.livingPlayers.length -1) {
-                game.livingPlayers[i].target = game.livingPlayers[0];
+                game.livingPlayers[i].target.victim = game.livingPlayers[0];
             } else {
-                game.livingPlayers[i].target = game.livingPlayers[i++];
+                game.livingPlayers[i].target.victim = game.livingPlayers[i+1];
             }
+            game.livingPlayers[i].target.timeAssigned = new Date();
         }
-        game.markModified(livingPlayers);
-        game.save();
+        game.gameStatus = 1;
+        game.markModified("livingPlayers", "gameStatus");
+        game.save((err) => {
+            if (err) {
+                if (err.code === 11000)
+                    return res.status(400).send('Error assigning targets');
+                return next(err);
+            }
+            return res.sendStatus(200);
+        });
     })
 }
 
 
-// https://github.com/coolaj86/knuth-shuffle 
+// https://github.com/coolaj86/knuth-shuffle
 function shuffle(array) {
     var currentIndex = array.length, temporaryValue, randomIndex;
 
