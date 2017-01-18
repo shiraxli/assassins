@@ -52,7 +52,7 @@ var gameSchema = new Schema({
 gameSchema.pre('save', function(callback){
     if (!this.email)
         return callback(new Error('Missing email'));
-    if (this.email && !validator(this.email))
+    if (this.email && !validator.validate(this.email))
         return callback(new Error('Invalid email'));
     if (!this.password)
         return callback(new Error('Missing password'));
