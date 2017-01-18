@@ -1,4 +1,5 @@
 const Game = require('../models/schemas/game');
+const bcrypt = require('bcrypt-nodejs');
 
 exports.createPlayer = (req, res, next) => {
 
@@ -24,21 +25,22 @@ exports.createPlayer = (req, res, next) => {
             playerData.email = req.body.email;
     };
 
-    playerData.password = req.body.password;
+    playerData.password = bcrypt.hashSync(req.body.password);
 
-
-    var newPlayer = new Player(playerData);
-    Game.find({gameCode: req.params.gameCode}, (err, game) => {
-        if (err) return next(err);
-        if (!game) return res.status(404).send('No game with that gameCode');
-        game.livingPlayers.push(newPlayer);
+    Game.findOne({ gameCode: req.params.gameCode }).exec().then(function (game) {
+        if (!game) return res.status(404).send('No game with that game code');
+        game.livingPlayers.push(playerData);
         game.markModified('livingPlayers');
-    });
+        return game.save();
+    }).then(function (game) {
+        return res.sendStatus(200);
+    }).catch(function (err) { return next(err); });
 };
 
 exports.getAllPlayers = (req, res, next) => {
-    Game.find({ game: req.params.gameCode }, (err, game) => {
+    Game.findOne({ gameCode: req.params.gameCode }, (err, game) => {
         if (err) return next(err);
+        if (!game) return res.status(400).send('No game with that game code');
         var gameQuery = {};
         if (req.query.living === 'true')
             return res.json(game.livingPlayers);
@@ -51,7 +53,7 @@ exports.getAllPlayers = (req, res, next) => {
 
 
 exports.getPlayerById = (req, res, next) => {
-    Game.find({ game: req.params.gameCode }, (err, game) => {
+    Game.findOne({ game: req.params.gameCode }, (err, game) => {
         if (err) return next(err);
         for (var i = 0; i < game.allPlayers.length; i++) {
             if (game.allPlayers[i]._id === req.params.id)
