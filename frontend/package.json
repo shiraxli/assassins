@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "npm install && grunt publish",
-    "dev": "grunt & nodemon frontend.js"
+    "dev": "grunt & node frontend.js"
   },
   "dependencies": {
     "body-parser": "~1.13.2",
@@ -25,4 +25,3 @@
     "nodemon": "^1.11.0"
   }
 }
-

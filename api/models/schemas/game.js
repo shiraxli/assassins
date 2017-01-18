@@ -32,9 +32,11 @@ var Player = new Schema({
 var gameSchema = new Schema({
     email: {type: String, trim: true, required: true, index: true},
     password: {type: String, trim: true, required: true},
-    gameStatus: {type: Number, trim: true},
+    gameStatus: {type: Number, trim: true, default: 0},
     gameCode: {type: String, required: true, unique: true, trim: true, index: true},
     startDate: Date,
+    gameName: String,
+    rules: [String],
     livingPlayers: [Player],
     killedPlayers: [Player],
     token: String
@@ -73,6 +75,10 @@ Player.methods.comparePlayerPassword = function(pw, callback) {
         callback(null, isMatch);
     });
 };
+
+gameSchema.virtual('allPlayers').get(function() {
+    return this.livingPlayers.concat(this.deadPlayers);
+});
 
 var Game = mongoose.model('Game', gameSchema);
 
