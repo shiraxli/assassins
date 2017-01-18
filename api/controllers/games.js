@@ -73,3 +73,47 @@ exports.deleteGameByCode = (req, res, next) => {
         return res.sendStatus(200);
     });
 }
+
+exports.startGame = (req, res, next) => {
+    console.log("starting the game");
+    Game.findOne({gameCode: req.params.gameCode}, (err, game) => {
+
+        if (!game) return res.status(404).send('No game with that code');
+        if (!game.livingPlayers) return res.status(404).send('No players in this game');
+        console.log(game.livingPlayers);
+        // shuffle array
+        game.livingPlayers = shuffle(game.livingPlayers);
+        console.log(livingPlayers);
+
+        for (var i = 0; i < game.livingPlayers.length; i++) {
+            if (i === game.livingPlayers.length -1) {
+                game.livingPlayers[i].target = game.livingPlayers[0];
+            } else {
+                game.livingPlayers[i].target = game.livingPlayers[i++];
+            }
+        }
+        game.markModified(livingPlayers);
+        game.save();
+    })
+}
+
+
+// https://github.com/coolaj86/knuth-shuffle 
+function shuffle(array) {
+    var currentIndex = array.length, temporaryValue, randomIndex;
+
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+
+        // Pick a remaining element...
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1;
+
+        // And swap it with the current element.
+        temporaryValue = array[currentIndex];
+        array[currentIndex] = array[randomIndex];
+        array[randomIndex] = temporaryValue;
+    }
+
+    return array;
+}
