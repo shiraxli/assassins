@@ -44,20 +44,17 @@ function submitGamesForm() {
    if (errorMessage) return displayError(errorMessage);
 
     fetch('/games', {
-        headers: {
-            'Content-Type': 'application/json'
-        },
+        headers: {'Content-Type': 'application/json'},
         method: 'POST',
         body: JSON.stringify(data)
     }).then(function(res) {
         if (!res.ok) return submitError(res)
         else return res.json.then(function(result) {
-           // localStorage.token = result.token;
            window.location = '/games/' + result.gameCode + '/players'
-        });
+        }).catch(submitError(errorMessage));
+    }).catch(submitError());
     }
-    .catch(submitError(errorMessage));
-}
+
 /////////////// Form Validation Function ///////////////
 
 function validateEmail(target, isRequired) {
