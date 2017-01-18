@@ -1,4 +1,4 @@
-const Game = require('../models/schemas/Game');
+const Game = require('../models/schemas/game');
 
 exports.createGame = (req, res, next) => {
 
@@ -22,17 +22,14 @@ exports.createGame = (req, res, next) => {
     gameData.gameCode = req.body.gameCode;
     gameData.password = req.body.password;
 
-    if (req.body.gameStatus) {
+    if (req.body.gameStatus)
         gameData.gameStatus = req.body.gameStatus;
-    } else {
-        gameData.gameStatus = 0;
-    } 
-    
+
     var newGame = new Game(gameData);
     newGame.save((err, game) => {
         if (err) {
             if (err.code === 11000)
-                return res.status(400).send('Game code already registered');    
+                return res.status(400).send('Game code already registered');
             return next(err);
         }
         return res.sendStatus(200);

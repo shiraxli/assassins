@@ -8,9 +8,8 @@ const bodyParser = require('body-parser');
 
 const config = require('./models/config');
 
-const admins = require('./controllers/admins.js');
 const players = require('./controllers/players.js');
-const kills = require('./controllers/kills.js');
+const games = require('./controllers/games.js');
 
 // http://mongoosejs.com/docs/promises.html
 mongoose.Promise = global.Promise;

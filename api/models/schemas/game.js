@@ -5,27 +5,27 @@ const validator = require('email-validator');
 
 // child schema
 var Player = new Schema({
-        firstName: {type: String, trim: true, required: true},
-        lastName: {type: String, trim: true, required: true},
-        email: {type: String, required: true, index: true},
-        password: {type: String, required: true},
-        target: {
-            victim: Schema.ObjectId,
-            timeAssigned: Date,
-            timeKilled: Date
-        },
-        killedBy: Schema.ObjectId,
-        deathApproved: {type: Boolean, default: false},
-        token: String
+    firstName: {type: String, trim: true, required: true},
+    lastName: {type: String, trim: true, required: true},
+    email: {type: String, required: true, index: true},
+    password: {type: String, required: true},
+    target: {
+        victim: Schema.ObjectId,
+        timeAssigned: Date,
+        timeKilled: Date
     },
-    {
-        toObject: {getters: true},
-        timeStamps: {
-            createdAt: 'createdDate',
-            updatedAt: 'updatedDate'
-        },
-    }
-});
+    killedBy: Schema.ObjectId,
+    deathApproved: {type: Boolean, default: false},
+    token: String
+},
+                        {
+    toObject: {getters: true},
+    timeStamps: {
+        createdAt: 'createdDate',
+        updatedAt: 'updatedDate'
+    },
+}
+                       );
 
 // parent schema
 // game status: 0 sign-up, 1 active, 2 done
@@ -40,14 +40,14 @@ var gameSchema = new Schema({
     livingPlayers: [Player],
     killedPlayers: [Player],
     token: String
-    },
-    {
+},
+                            {
     toObject:{getters: true},
     timestamps: {
         createdAt: 'createdDate',
         updatedAt: 'updatedDate'
     },
- });
+});
 
 gameSchema.pre('save', function(callback){
     if (!this.email)
@@ -60,7 +60,7 @@ gameSchema.pre('save', function(callback){
         this.hash = bcrypt.hashSync(this.password);
 
     callback();
-};
+});
 
 gameSchema.methods.comparePassword = function(pw, callback) {
     bcrypt.compare(pw, this.password, (err, isMatch) => {
@@ -83,3 +83,16 @@ gameSchema.virtual('allPlayers').get(function() {
 var Game = mongoose.model('Game', gameSchema);
 
 module.exports = Game;
+
+
+
+// example for testing in postman
+/*
+{
+    "email": "hjames@alpinedistrict.org",
+        "password": "hjames",
+            "gameCode": "LH2017",
+                "gameName": "Lowell House 2017",
+}
+*/
+
