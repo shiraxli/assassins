@@ -22,8 +22,12 @@ router.get('/join', (req, res, next) => {
     return res.render('join', { title: 'Join' });
 });
 
-router.get('/login', (req, res, next) => {
-    return res.render('login', {title: 'Login' });
+router.get('/login/player', (req, res, next) => {
+    return res.render('playerlogin', {title: 'Player Login' });
+});
+
+router.get('/login/admin', (req, res, next) => {
+    return res.render('adminlogin', {title: 'Admin Login' });
 });
 
 module.exports = router;
