@@ -3,9 +3,9 @@ const Game = require('../models/schemas/game');
 exports.createPlayer = (req, res, next) => {
 
     if (typeof req.body.firstName !== 'string')
-        return res.status(400).send('No firstName');
+        return res.status(400).send('No first name');
     if (typeof req.body.lastName !== 'string')
-        return res.status(400).send('No lastName');
+        return res.status(400).send('No last name');
     if (typeof req.body.email !== 'string')
         return res.status(400).send('No email');
     if (typeof req.body.password !== 'string')
@@ -45,8 +45,7 @@ exports.getAllPlayers = (req, res, next) => {
             return res.json(game.livingPlayers);
         if (req.query.living === 'false')
             return res.json(game.killedPlayers);
-        var allPlayers = game.livingPlayers.concat(game.killedplayers);
-        return res.json(allPlayers);
+        return res.json(game.allPlayers);
     });
 };
 
@@ -55,10 +54,9 @@ exports.getAllPlayers = (req, res, next) => {
 exports.getPlayerById = (req, res, next) => {
     Game.find({ game: req.params.gameCode }, (err, game) => {
         if (err) return next(err);
-        var allPlayers = game.livingPlayers.concat(game.killedplayers);
-        for (var i = 0; i < allPlayers.length; i++) {
-            if allPlayers[i]._id == Number(req.params.id)
-                return res.json(allPlayers[i]);
+        for (var i = 0; i < game.allPlayers.length; i++) {
+            if (game.allPlayers[i]._id === req.params.id)
+                return res.json(game.allPlayers[i]);
         }
         return res.status(404).send('No player with that id');
     });
