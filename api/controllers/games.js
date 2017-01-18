@@ -57,8 +57,7 @@ exports.getGameByCode = (req, res, next) => {
 };
 
 exports.updateGameByCode = (req, res, next) => {
-    console.log("updating game by code...");
-    Game.findOneAndUpdate(req.params.gameCode, req.body, (err, game) => {
+    Game.findOneAndUpdate({ gameCode: req.params.gameCode }, req.body, (err, game) => {
         if (err) return next(err);
         if (!game) return res.status(404).send('No game with that code');
         return res.sendStatus(200);
@@ -67,7 +66,7 @@ exports.updateGameByCode = (req, res, next) => {
 
 
 exports.deleteGameByCode = (req, res, next) => {
-    Game.findOneAndRemove(req.params.gameCode, (err, game) => {
+    Game.findOneAndRemove({ gameCode: req.params.gameCode }, (err, game) => {
         if (err) return next(err);
         if (!game) return res.status(404).send('No game with that code');
         return res.sendStatus(200);
@@ -107,7 +106,7 @@ exports.startGame = (req, res, next) => {
 }
 
 
-// https://github.com/coolaj86/knuth-shuffle 
+// https://github.com/coolaj86/knuth-shuffle
 function shuffle(array) {
     var currentIndex = array.length, temporaryValue, randomIndex;
 

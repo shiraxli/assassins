@@ -65,6 +65,10 @@ gameSchema.pre('save', function(callback){
     callback();
 });
 
+gameSchema.pre('findOneAndUpdate', function() {
+    if (this._update.password) this._update.password = bcrypt.hashSync(this._update.password);
+});
+
 gameSchema.methods.comparePassword = function(pw, callback) {
     bcrypt.compare(pw, this.password, (err, isMatch) => {
         if(err) return callback(err);
