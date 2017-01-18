@@ -1,6 +1,6 @@
 */.DS_Store
 node_modules/*
-.mongo_pid
+mongo_pid
 
 # swap
 [._]*[._]*.s[a-w][a-z]
