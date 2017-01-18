@@ -3,9 +3,10 @@ extends template
 block content
     form#js-login-form.form
         h1.form-title Join a New Game
+        #js-error-message
         input.form-input(type='text' name='gameCode' placeholder='Game Code*')
         input.form-input.half(type='text' name='firstName' placeholder='First Name')
         input.form-input.half(type='text' name='lastName' placeholder='Last Name')
         input.form-input(type='text' name='email' placeholder='Email*')
         input.form-input(type='password' name='password' placeholder='Password*')
-        button.form-input.button(type='button' onclick='joinGame') Join
+        button.form-input.button(type='button' onclick='joinGame') Join Game

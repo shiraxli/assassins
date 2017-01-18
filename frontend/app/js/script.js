@@ -12,7 +12,7 @@ function submitOnEnterKey(submitFunction, targetForm) {
         if (type === 'text' || type === 'email' || type === 'password' ||
             type === 'number' || type === 'phone')
         child.onkeydown = runOnKeydown;
-                                                        
+
                 }
 
 }
@@ -26,7 +26,7 @@ function submitGamesForm() {
         errorMessage += 'Please Enter Game Code; ';
     } else {
         data.gameCode = form.gameCode.value;
-    } 
+    }
     if (!form.email.value || !validateEmail(form.email)) {
         errorMessage += 'Please Enter Proper Email; ';
     } else {
@@ -69,7 +69,23 @@ function validateEmail(target, isRequired) {
          return isValid;
 }
 
+function error(target) {
+    target.style.border = '3px solid #F00';
+}
 
+function clearError(target) {
+    if (target === 'message')
+        return document.getElementById('js-error-message').style.visibility = 'hidden';
+    target.style.border = '1px solid #888';
+}
+
+function clearForm() {
+    form.reset();
+    clearError('message');
+    var divs = document.getElementsByClassName('hidden');
+    for (var i = 0; i < divs.length; i++)
+        divs[i].style.display = '';
+}
 
 /////////////// Form Submit Callbacks //////////////////
 
@@ -92,8 +108,3 @@ function displayError(message) {
     errorDiv.innerHTML = message;
     errorDiv.style.visibility = 'visible';
 }
-
-
-
-
-
