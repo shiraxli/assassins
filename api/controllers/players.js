@@ -123,19 +123,23 @@ exports.submitKill = (req, res, next)  => {
     helper.findPlayerById(req.params.gameCode, req.params.id, (err, killer, game) => {
         if (err) return next(err);
         if (!killer) return res.status(404).send('No killer with that id');
-        victimId = killer.target.victim;
+        var victimId = killer.target.victim;
         var found = false;
         for(var i = 0; i < game.livingPlayers.length; i++) {
-            if(!found && String(game.livingPlayers[i]._id) === victimId) {
+            if(!found && String(game.livingPlayers[i]._id) === String(victimId)) {
                 game.livingPlayers[i].killedBy.killer = killer._id;
                 game.livingPlayers[i].killedBy.killTime = killer.target.timeKilled = new Date();
                 game.markModified('livingPlayers');
+                found = true;
             }
         }
         if(!found)
-            return res.status(404).send('No victim with that id')
-        else
+            return res.status(404).send('No victim with that id');
+
+        game.save((err) => {
+            if (err) return next(err);
             return res.sendStatus(200);
+        });
     });
 };
 
@@ -146,7 +150,7 @@ exports.getUnapprovedKills = (req, res, next) => {
         var unapproved = [];
         for (var i = 0; i < game.livingPlayers.length; i++) {
             if(game.livingPlayers[i].killedBy.killer && !game.livingPlayers[i].deathApproved)
-                unapproved.push(games.livingPlayers[i]);
+                unapproved.push(game.livingPlayers[i]);
         }
         return res.json(unapproved);
     });
@@ -158,10 +162,10 @@ exports.approveKill = (req, res, next) => {
         if (!killer) return res.status(404).send('No killer with that id');
         // TODO : At the moment, no way to check if kill is within time limit (need to set some config global for that?)
         // No way to not approve kill yet, not sure how the route works for that, should it be a query?
-        victimId = killer.target.victim;
+        var victimId = killer.target.victim;
         var found = false;
         for (var i = 0; i < game.livingPlayers.length; i++) {
-            if (!found && String(game.livingPlayers[i]._id) === victimId) {
+            if (!found && String(game.livingPlayers[i]._id) === String(victimId)) {
                 found = true;
                 killer.target.victim = game.livingPlayers[i].target.victim;
                 killer.target.timeAssigned = new Date();
@@ -173,7 +177,17 @@ exports.approveKill = (req, res, next) => {
                 game.markModified('livingPlayers');
             }
         }
-        if(!found) 
+        if(!found)
             return res.status(404).send('No victim with that id');
+
+        // checks for end game
+        if(game.livingPlayers.length === 1) {
+            game.gameStatus = 2;
+        }
+
+        game.save((err) => {
+            if (err) return next(err);
+            return res.sendStatus(200);
+        });
     });
 };
