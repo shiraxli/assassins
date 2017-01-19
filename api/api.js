@@ -48,7 +48,7 @@ router.route('/games/:gameCode')
 	.get(games.getGameByCode)
 	.put(games.updateGameByCode)
 	.delete(games.deleteGameByCode)
-    .post(games.startGame);
+    .post(games.changeGameStatus);
 
 router.route('/games/:gameCode/players')
 	.get(players.getAllPlayers)
