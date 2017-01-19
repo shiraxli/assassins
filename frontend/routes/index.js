@@ -56,4 +56,11 @@ router.delete('/removePlayer', (req, res, next) => {
     }).pipe(res);
 });
 
+router.post('/admin/changestatus', (req, res, next) => {
+    request.post(config.apiUrl + '/games/' + req.body.gameCode, {
+        headers: { 'x-access-token': req.headers['x-access-token'] },
+        form: req.body
+    }).pipe(res);
+});
+
 module.exports = router;

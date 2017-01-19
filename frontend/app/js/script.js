@@ -110,7 +110,7 @@ function joinGame() {
     }).catch(submitError);
 }
 
-function startGame() {
+function changeGameStatus() {
     // uses Game Token
     var data = JSON.parse(atob(localStorage.token.split('.')[1]));
     fetch('/changeGameStatus', {
@@ -118,7 +118,7 @@ function startGame() {
             'Content-type': 'application/json'
         },
         method: 'POST',
-        body: JSON.stringify(data.gameCode)
+        body: data
     }).then(function(res) {
         if(!res.ok) return submitError(res);
         else console.log('Started Game');
