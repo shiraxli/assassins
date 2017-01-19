@@ -11,13 +11,8 @@ router.get('/create', (req, res, next) => {
     return res.render('create', { title: 'Create Game' });
 });
 router.post('/create', (req, res, next) => {
-    // fix the path
     request.post({
-<<<<<<< HEAD
-        url:config.apiUrl + '/games',
-=======
         url: config.apiUrl + '/games' + req.body.gameCode,
->>>>>>> 126bea2e592bb10ef60b5699b571c17e6b8a2287
         form: req.body
     }).pipe(res);
 });

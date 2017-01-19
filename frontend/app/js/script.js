@@ -23,16 +23,19 @@ function submitCreateForm() {
 
     if (form.gameName.value) data.gameName = form.gameName.value;
     if (!form.gameCode.value) {
+        error(form.gameCode);
         errorMessage += 'Please Enter Game Code; ';
     } else {
         data.gameCode = form.gameCode.value;
     }
     if (!form.email.value || !validateEmail(form.email)) {
+        error(form.email);
         errorMessage += 'Please Enter Proper Email; ';
     } else {
         data.email = form.email.value;
     }
     if (!form.password.value) {
+        error(form.password);
         errorMessage += 'Please Enter Password; ';
     } else {
         data.password = form.password.value
@@ -49,11 +52,6 @@ function submitCreateForm() {
         body: JSON.stringify(data)
     }).then(function(res) {
         if (!res.ok) return submitError(res)
-<<<<<<< HEAD
-        window.location = '/';
-    }).catch(submitError());
-}
-=======
         else return res.json.then(function(result) {
            window.location = '/games/' + result.gameCode + '/players'
         });
@@ -95,7 +93,6 @@ function joinGame() {
     }
 
     if (errorMessage) return displayError(errorMessage);
->>>>>>> 126bea2e592bb10ef60b5699b571c17e6b8a2287
 
     fetch('/join', {
         headers: {
