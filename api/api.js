@@ -10,6 +10,7 @@ const config = require('./models/config');
 
 const players = require('./controllers/players.js');
 const games = require('./controllers/games.js');
+const auth = require('./controllers/auth.js');
 
 // http://mongoosejs.com/docs/promises.html
 mongoose.Promise = global.Promise;
@@ -43,25 +44,32 @@ router.param('id', (req, res, next, id) => {
 
 router.route('/games')
 	.get(games.getAllGames)
-	.post(games.createGame);
+	.post(games.createGame, auth.loginAdmin);
 router.route('/games/:gameCode')
-	.get(games.getGameByCode)
-	.put(games.updateGameByCode)
-	.delete(games.deleteGameByCode)
-    .post(games.startGame);
+	.get(auth.validateToken, games.getGameByCode)
+	.put(auth.adminRequired, games.updateGameByCode)
+	.delete(auth.adminRequired, games.deleteGameByCode)
+    .post(auth.adminRequired, games.changeGameStatus);
 
 router.route('/games/:gameCode/players')
-	.get(players.getAllPlayers)
-	.post(players.createPlayer);
+	.get(auth.adminRequired, players.getAllPlayers)
+	.post(players.createPlayer, auth.loginPlayer);
 router.route('/games/:gameCode/kills')
-    .get(players.getUnapprovedKills)
+    .get(auth.adminRequired, players.getUnapprovedKills)
 router.route('/games/:gameCode/players/:id/kills')
-    .post(players.approveKill)
-    .put(players.submitKill);
+    .post(auth.adminRequired, players.approveKill)
+    .put(auth.validateToken, players.submitKill);
+
+// lol could you update your own target based on this?
 router.route('/games/:gameCode/players/:id')
-	.get(players.getPlayerById)
-	.put(players.updatePlayerById)
-	.delete(players.deletePlayerById);
+	.get(auth.validateToken, players.getPlayerById)
+	.put(auth.validateToken, players.updatePlayerById)
+	.delete(auth.validateToken, players.deletePlayerById);
+
+router.route('/auth/game')
+    .post(auth.loginAdmin);
+router.route('/auth/player')
+    .post(auth.loginPlayer);
 
 app.use('/', router);
 

@@ -33,6 +33,13 @@ playerSchema.virtual('fullName').get(function() {
     return this.firstName + ' ' + this.lastName;
 });
 
+playerSchema.methods.comparePlayerPassword = function(pw, callback) {
+    bcrypt.compare(pw, this.password, (err, isMatch) => {
+        if (err) return callback(err);
+        callback(null, isMatch);
+    });
+};
+
 // parent schema
 // game status: 0 sign-up, 1 active, 2 done
 var gameSchema = new Schema({
@@ -75,13 +82,6 @@ gameSchema.pre('findOneAndUpdate', function() {
 gameSchema.methods.comparePassword = function(pw, callback) {
     bcrypt.compare(pw, this.password, (err, isMatch) => {
         if(err) return callback(err);
-        callback(null, isMatch);
-    });
-};
-
-playerSchema.methods.comparePlayerPassword = function(pw, callback) {
-    bcrypt.compare(pw, this.password, (err, isMatch) => {
-        if (err) return callback(err);
         callback(null, isMatch);
     });
 };
