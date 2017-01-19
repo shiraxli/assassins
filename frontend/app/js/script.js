@@ -12,9 +12,7 @@ function submitOnEnterKey(submitFunction, targetForm) {
         if (type === 'text' || type === 'email' || type === 'password' ||
             type === 'number' || type === 'phone')
         child.onkeydown = runOnKeydown;
-
                 }
-
 }
 
 function submitCreateForm() {
@@ -45,7 +43,7 @@ function submitCreateForm() {
     }
 
     if (errorMessage) return displayError(errorMessage);
-
+    console.log(data);
     fetch('/create', {
         headers: {'Content-Type': 'application/json'},
         method: 'POST',
@@ -53,7 +51,11 @@ function submitCreateForm() {
     }).then(function(res) {
         if (!res.ok) return submitError(res)
         else return res.json.then(function(result) {
-           window.location = '/games/' + result.gameCode + '/players'
+            // store token in local storage
+            localStorage.token = result.token;
+            var data = JSON.parse(atob(localStorage.token.split('.')[1]));
+           window.location = '/admin';
+            //window.location = '/games/' + result.gameCode + '/players'
         });
     }).catch(submitError);
 }
@@ -107,6 +109,57 @@ function joinGame() {
         //window.location = '/player';
     }).catch(submitError);
 }
+
+function startGame() {
+    // uses Game Token
+    var data = JSON.parse(atob(localStorage.token.split('.')[1]));
+    fetch('/changeGameStatus', {
+        headers: {
+            'Content-type': 'application/json'
+        },
+        method: 'POST',
+        body: JSON.stringify(data.gameCode)
+    }).then(function(res) {
+        if(!res.ok) return submitError(res);
+        else console.log('Started Game');
+        // implement what happens when you start game
+    }).catch(submitError);
+}
+function removeUser(name) {
+    // uses User Token (gameCode, user_id)
+    var decodedToken = JSON.parse(atob(localStorage.token.split('.')[1]));
+    var data = {
+        gameCode: decodedToken.gameCode ,
+        user_id: decodedToken._id
+    };
+
+    fetch('/removePlayer', {
+        headers: {
+            'Content-type': 'application/json'
+        },
+        method: 'DELETE',
+        body: JSON.stringify(data)
+    }).then(function(res) {
+        if(!res.ok) return submitError(res);
+        else console.log('Deleted Player');
+        // Update What Happens if You Delete User
+    }).catch(submitError);
+}
+function endGame() {
+    var data = JSON.parse(atob(localStorage.token.split('.')[1]));
+    fetch('/changeGameStatus', {
+        headers: {
+            'Content-type': 'application/json'
+        },
+        method: 'POST',
+        body: JSON.stringify(data.gameCode)
+    }).then(function(res) {
+        if(!res.ok) return submitError(res);
+        else console.log('Ended Game');
+        // implement what happens when you end game
+    }).catch(submitError);
+}
+
 /////////////// Form Validation Function ///////////////
 
 function validateEmail(target, isRequired) {
@@ -144,7 +197,7 @@ function submitSuccess(res) {
 }
 
 function submitError(res, message) {
-    console.log(message);
+    console.log(res.status);
     if (res.status >= 400 && res.status < 500)
         return res.text().then(function(ErrorMessage) {displayError(ErrorMessage)});
     if(message)

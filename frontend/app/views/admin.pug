@@ -4,15 +4,13 @@ block content
     form#js-login-form.form
         h1.title.center Admin
         #js-error-message
-        button.form-input.button(type='button' onclick='') Start Game
+        button.form-input.button(type='button' onclick='startGame()') Start Game
         #remove-users
             ul
                 each user in users
-                li user.name
-                button.form-input.button(type='button' onclick='') Delete        
-
-        button.form-input.button(type='button' onclick='')End Game
-    
-edit rules
-remove users
-approve kills   
+                li user.firstName
+                button.form-input.button(type='button' onclick='removeUser(user.name)') Delete        
+        button.form-input.button(type='button' onclick='endGame()')End Game
+// edit rules
+// remove users
+// approve kills   

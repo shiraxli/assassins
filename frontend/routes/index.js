@@ -12,7 +12,7 @@ router.get('/create', (req, res, next) => {
 });
 router.post('/create', (req, res, next) => {
     request.post({
-        url: config.apiUrl + '/games' + req.body.gameCode,
+        url: config.apiUrl + '/games',
         form: req.body
     }).pipe(res);
 });
@@ -30,9 +30,30 @@ router.post('/join', (req, res, next) => {
 router.get('/login/player', (req, res, next) => {
     return res.render('playerlogin', {title: 'Player Login' });
 });
-
 router.get('/login/admin', (req, res, next) => {
     return res.render('adminlogin', {title: 'Admin Login' });
+});
+
+router.post('/changeGameStatus', (req, res, next) => {
+    request.post({
+        url: config.apiUrl + '/games/' + req.body.gameCode,
+        form: req.body
+    }).pipe(res);
+});
+
+// is this right?
+router.get('/games/:gameCode/players', (req, res, next) => {
+    var gameCode = req.params.gameCode
+    request.get(config.apiUrl + '/games/' + gameCode + '/players', (err, response, body) => {
+        if(!err && response.statusCode == 200)
+            return res.render('/admin', {users: JSON.parse(body)});
+        else return res.render('/admin', {users: []});
+    });
+});
+router.delete('/removePlayer', (req, res, next) => {
+    request.delete({
+        url: config.apiUrl + '/games/' + req.body.gameCode + '/players/' + req.body.user_id
+    }).pipe(res);
 });
 
 module.exports = router;
