@@ -10,15 +10,19 @@ exports.findPlayerById = (gameCode, id, callback) => {
             e.status = 404;
             return callback(e);
         };
-        var found = false;
         for (var i = 0; i < game.allPlayers.length; i++) {
             if (String(game.allPlayers[i]._id) === id) {
-                found = true;
-                callback(null, game.allPlayers[i], game);
+                var player = game.allPlayers[i];
             }
         };
-        if (!found)
+        if (!player) {
+            /*var playerError = new Error('No player with that id');
+            playerError.status = 404;
+            return callback(playerError);*/
             callback(null);
+        } else {
+            callback(null, player, game);
+        }
     });
 };
 

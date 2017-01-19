@@ -76,7 +76,6 @@ exports.adminRequired = (req, res, next) => { validateToken(req, res, next, true
 
 exports.validateToken = (req, res, next) => { validateToken(req, res, next, false); }
 
-// this is broken rn
 function validateToken(req, res, next, isAdmin) {
     var token = req.body.token || req.query.token || req.headers['x-access-token'];
 
@@ -88,25 +87,29 @@ function validateToken(req, res, next, isAdmin) {
         return res.status(403).send('Failed to authenticate token');
     }
 
-    if (isAdmin && !!decoded.userId)
+    if (isAdmin && !!decoded.playerId)
         return res.status(403).send('Admin privileges required');
 
     Game.findById(decoded.gameId, (err, game) => {
         if (err) return next(err);
         if (!game) return res.status(403).send('Invalid game');
-        if (isAdmin) {
-            if (token !== game.token) return res.status(403).send('Expired admin token');
-        } else {
-            helper.findPlayerById(decoded.gameCode, decoded.userId, (err, player, game) => {
+        if (!!decoded.playerId) {
+            if (req.params.id && req.params.id !== decoded.playerId)
+                return res.status(403).send('Incorrect player');
+            helper.findPlayerById(decoded.gameCode, decoded.playerId, (err, player, game) => {
                 if (err) return next(err);
                 if (!player) return res.status(403).send('Invalid player');
                 if (token !== player.token)
                     return res.status(403).send('Expired player token');
+                req.game = { gameId: decoded.gameId, gameCode: decoded.gameCode };
                 req.player = decoded;
+                next();
             });
+        } else {
+            if (token !== game.token) return res.status(403).send('Expired admin token');
+            req.game = decoded;
+            next();
         }
-        req.game = { gameId: decoded.gameId, gameCode: decoded.gameCode };
-        next();
     })
 
 }

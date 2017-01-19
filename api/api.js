@@ -60,7 +60,7 @@ router.route('/games/:gameCode/players/:id/kills')
     .post(auth.adminRequired, players.approveKill)
     .put(auth.validateToken, players.submitKill);
 
-// lol could you update your own token based on this?
+// lol could you update your own target based on this?
 router.route('/games/:gameCode/players/:id')
 	.get(auth.validateToken, players.getPlayerById)
 	.put(auth.validateToken, players.updatePlayerById)
