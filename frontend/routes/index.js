@@ -36,6 +36,7 @@ router.get('/login/admin', (req, res, next) => {
 
 router.post('/changeGameStatus', (req, res, next) => {
     request.post({
+        headers: { 'x-access-token': req.headers['x-access-token'] },
         url: config.apiUrl + '/games/' + req.body.gameCode,
         form: req.body
     }).pipe(res);
@@ -56,11 +57,5 @@ router.delete('/removePlayer', (req, res, next) => {
     }).pipe(res);
 });
 
-router.post('/admin/changestatus', (req, res, next) => {
-    request.post(config.apiUrl + '/games/' + req.body.gameCode, {
-        headers: { 'x-access-token': req.headers['x-access-token'] },
-        form: req.body
-    }).pipe(res);
-});
 
 module.exports = router;

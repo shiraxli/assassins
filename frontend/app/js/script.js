@@ -110,12 +110,16 @@ function joinGame() {
     }).catch(submitError);
 }
 
+
+{ headers: { 'x-access-token': localStorage.token } }
+
 function changeGameStatus() {
     // uses Game Token
     var data = JSON.parse(atob(localStorage.token.split('.')[1]));
     fetch('/changeGameStatus', {
         headers: {
-            'Content-type': 'application/json'
+            'Content-type': 'application/json',
+            'x-access-token': localStorage.token
         },
         method: 'POST',
         body: data
