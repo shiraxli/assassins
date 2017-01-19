@@ -92,13 +92,13 @@ function validateToken(req, res, next, isAdmin) {
 
     Game.findById(decoded.gameId, (err, game) => {
         if (err) return next(err);
-        if (!game) return res.status(403).send('Invalid game');
-        if (!!decoded.playerId) {
+        if (!game) return res.status(404).send('Invalid game');
+        if (decoded.playerId) {
             if (req.params.id && req.params.id !== decoded.playerId)
                 return res.status(403).send('Incorrect player');
             helper.findPlayerById(decoded.gameCode, decoded.playerId, (err, player, game) => {
                 if (err) return next(err);
-                if (!player) return res.status(403).send('Invalid player');
+                if (!player) return res.status(404).send('Invalid player');
                 if (token !== player.token)
                     return res.status(403).send('Expired player token');
                 req.game = { gameId: decoded.gameId, gameCode: decoded.gameCode };

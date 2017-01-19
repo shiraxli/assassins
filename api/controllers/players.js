@@ -3,6 +3,7 @@ const Game = schemas[0];
 const Player = schemas[1];
 const helper = require('./helpers');
 const bcrypt = require('bcrypt-nodejs');
+const sender = require('./sender');
 
 exports.createPlayer = (req, res, next) => {
 
@@ -21,12 +22,10 @@ exports.createPlayer = (req, res, next) => {
 
     // validate email
     // http://emailregex.com
-    if (req.body.email) {
-        if (!(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(req.body.email)))
-            return res.status(400).send('Invalid email');
-        else
-            playerData.email = req.body.email;
-    };
+    if (!(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(req.body.email)))
+        return res.status(400).send('Invalid email');
+    else
+        playerData.email = req.body.email;
 
     playerData.password = bcrypt.hashSync(req.body.password);
 
@@ -46,7 +45,7 @@ exports.createPlayer = (req, res, next) => {
 exports.getAllPlayers = (req, res, next) => {
     Game.findOne({ gameCode: req.params.gameCode }, (err, game) => {
         if (err) return next(err);
-        if (!game) return res.status(400).send('No game with that game code');
+        if (!game) return res.status(404).send('No game with that game code');
         var gameQuery = {};
         if (req.query.living === 'true')
             return res.json(game.livingPlayers);
@@ -57,7 +56,6 @@ exports.getAllPlayers = (req, res, next) => {
 };
 
 exports.getPlayerById = (req, res, next) => {
-    console.log(req.params.id);
     helper.findPlayerById(req.params.gameCode, req.params.id, (err, player, game) => {
         if (err) return next(err);
         if (!player) return res.status(404).send('No player with that id');
@@ -93,22 +91,8 @@ exports.deletePlayerById = (req, res, next) => {
     Game.findOne({ gameCode: req.params.gameCode }, (err, game) => {
         if (err) return next(err);
         if (!game) return res.status(404).send('No game with that game code');
-        var found = false;
-        for (var i = 0; i < game.livingPlayers.length; i++) {
-            if (String(game.livingPlayers[i]._id) === req.params.id) {
-                found = true;
-                game.livingPlayers.splice(i, 1);
-                game.markModified('livingPlayers');
-            }
-        }
-        for (var i = 0; i < game.killedPlayers.length; i++) {
-            if (String(game.killedPlayers[i]._id) === req.params.id) {
-                found = true;
-                game.killedPlayers.splice(i, 1);
-                game.markModified('killedPlayers');
-            }
-        }
-        if (!found) return res.status(404).send('No user with that id');
+        var player = game.allPlayers.id(req.params.id).remove();
+
         game.save((err) => {
             if (err) return next(err);
             return res.sendStatus(200);
@@ -116,24 +100,18 @@ exports.deletePlayerById = (req, res, next) => {
     });
 };
 
-//TODO: Check backend api points
 
 exports.submitKill = (req, res, next)  => {
     helper.findPlayerById(req.params.gameCode, req.params.id, (err, killer, game) => {
         if (err) return next(err);
         if (!killer) return res.status(404).send('No killer with that id');
-        var victimId = killer.target.victim;
-        var found = false;
-        for(var i = 0; i < game.livingPlayers.length; i++) {
-            if(!found && String(game.livingPlayers[i]._id) === String(victimId)) {
-                game.livingPlayers[i].killedBy.killer = killer._id;
-                game.livingPlayers[i].killedBy.killTime = killer.target.timeKilled = new Date();
-                game.markModified('livingPlayers');
-                found = true;
-            }
-        }
-        if(!found)
-            return res.status(404).send('No victim with that id');
+
+        var victim = game.livingPlayers.id(killer.target.victim);
+
+        if (!victim) return res.status(404).send('No victim with that id');
+        victim.killedBy.killer = killer._id;
+        victim.killedBy.killTime = killer.target.timeKilled = Date.now();
+        game.markModified('livingPlayers');
 
         game.save((err) => {
             if (err) return next(err);
@@ -160,24 +138,21 @@ exports.approveKill = (req, res, next) => {
         if (err) return next(err);
         if (!killer) return res.status(404).send('No killer with that id');
         // TODO : At the moment, no way to check if kill is within time limit (need to set some config global for that?)
+        // TODO: add 'must kill by' date
         // No way to not approve kill yet, not sure how the route works for that, should it be a query?
-        var victimId = killer.target.victim;
-        var found = false;
-        for (var i = 0; i < game.livingPlayers.length; i++) {
-            if (!found && String(game.livingPlayers[i]._id) === String(victimId)) {
-                found = true;
-                killer.target.victim = game.livingPlayers[i].target.victim;
-                killer.target.timeAssigned = new Date();
-                killer.target.timeKilled = null;
-                game.livingPlayers[i].deathApproved = true;
-                game.killedPlayers.push(game.livingPlayers[i]);
-                game.markModified('killedPlayers');
-                game.livingPlayers.splice(i, 1);
-                game.markModified('livingPlayers');
-            }
-        }
-        if(!found)
-            return res.status(404).send('No victim with that id');
+
+        var killed = game.livingPlayers.id(killer.target.victim);
+
+        if (!killed) return res.status(404).send('No victim with that id');
+
+        killer.target.victim = killed.target.victim;
+        killer.target.timeAssigned = Date.now();
+        killer.target.timeKilled = null;
+        killed.deathApproved = true;
+        game.killedPlayers.push(killed);
+        game.markModified('killedPlayers');
+        killed.remove();
+        game.markModified('livingPlayers');
 
         // checks for end game
         if(game.livingPlayers.length === 1) {
@@ -186,6 +161,7 @@ exports.approveKill = (req, res, next) => {
 
         game.save((err) => {
             if (err) return next(err);
+            //return sender.sendDeathNotification(req, res, next);
             return res.sendStatus(200);
         });
     });

@@ -128,15 +128,19 @@ function joinGame() {
     }).catch(submitError);
 }
 
-function startGame() {
+
+{ headers: { 'x-access-token': localStorage.token } }
+
+function changeGameStatus() {
     // uses Game Token
     var data = JSON.parse(atob(localStorage.token.split('.')[1]));
     fetch('/changeGameStatus', {
         headers: {
-            'Content-type': 'application/json'
+            'Content-type': 'application/json',
+            'x-access-token': localStorage.token
         },
         method: 'POST',
-        body: JSON.stringify(data.gameCode)
+        body: data
     }).then(function(res) {
         if(!res.ok) return submitError(res);
         else console.log('Started Game');

@@ -7,7 +7,7 @@ const validator = require('email-validator');
 var playerSchema = new Schema({
     firstName: {type: String, trim: true, required: true},
     lastName: {type: String, trim: true, required: true},
-    email: {type: String, required: true, index: true},
+    email: {type: String, trim: true, required: true, index: true},
     password: {type: String, required: true},
     target: {
         victim: Schema.ObjectId,
@@ -65,7 +65,7 @@ var gameSchema = new Schema({
 gameSchema.pre('save', function(callback){
     if (!this.email)
         return callback(new Error('Missing email'));
-    if (this.email && !validator.validate(this.email))
+    if (!validator.validate(this.email))
         return callback(new Error('Invalid email'));
     if (!this.password)
         return callback(new Error('Missing password'));
