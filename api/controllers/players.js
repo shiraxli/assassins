@@ -38,7 +38,7 @@ exports.createPlayer = (req, res, next) => {
         game.markModified('livingPlayers');
         game.save((err) => {
             if (err) return next(err);
-            return res.sendStatus(200);
+            next();
         });
     });
 };

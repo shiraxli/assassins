@@ -34,7 +34,7 @@ exports.createGame = (req, res, next) => {
                 return res.status(400).send('Game code already registered');
             return next(err);
         }
-        return res.sendStatus(200);
+        next();
     });
 }
 

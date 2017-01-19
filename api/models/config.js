@@ -3,5 +3,6 @@ module.exports = {
     dbUrl: 'localhost:5000',
     emailName: 'Bootcamp Assassins',
     emailAddress: 'bootcamp.assassins@gmail.com',
-    emailPassword: 'assassinswoo'
+    emailPassword: 'assassinswoo',
+	secret: 'q0n9a38wcesdrynhzklds'
 }
