@@ -50,14 +50,32 @@ function submitCreateForm() {
         body: JSON.stringify(data)
     }).then(function(res) {
         if (!res.ok) return submitError(res)
-        else return res.json.then(function(result) {
-            // store token in local storage
-            localStorage.token = result.token;
-            var data = JSON.parse(atob(localStorage.token.split('.')[1]));
-           window.location = '/admin';
-            //window.location = '/games/' + result.gameCode + '/players'
-        });
+        //else return res.json.then(function(result) {
+            // localStorage.token = result.token;
+        else
+            window.location = '/admin';           
+        //});
     }).catch(submitError);
+}
+function fetchPlayers() {
+    if(!localStorage.token) window.location = '/';
+    var decodedToken = JSON.parse(atob(localStorage.split('.')[1]));
+    fetch('/admin/getPlayers', { 
+        headers: { 'x-access-token': localStorage.token  },
+        body: JSON.stringify(decodedToken)  
+    })
+        .then(function(res) {
+            if (!res.ok)
+                return console.log("There was an error with fetchPlayers");
+            res.json().then(function(players) { populatePlayersPage(players)  }) 
+    }).catch(adminErrorHandler);
+}
+function populatePlayersPage(players) {
+    var playersDiv = document.getElementById('js-players');
+    players.forEach(function(p) {
+        playersDiv.appendChild(p.firstName)
+        console.log(p.firstName);
+    });
 }
 
 function joinGame() {

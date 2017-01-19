@@ -5,12 +5,11 @@ block content
         h1.title.center Admin
         #js-error-message
         button.form-input.button(type='button' onclick='startGame()') Start Game
-        #remove-users
-            ul
-                each user in users
-                li user.firstName
-                button.form-input.button(type='button' onclick='removeUser(user.name)') Delete        
-        button.form-input.button(type='button' onclick='endGame()')End Game
-// edit rules
-// remove users
-// approve kills   
+        #js-players
+        button.form-input.button(type='button' onclick='endGame()') End Game
+        // edit rules
+        // remove users
+        // approve kills
+
+block postscript
+    script fetchPlayers();
