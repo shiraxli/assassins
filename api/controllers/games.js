@@ -14,12 +14,10 @@ exports.createGame = (req, res, next) => {
     var gameData = {};
 
     // http://emailregex.com
-    if (req.body.email) {
-        if (!(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(req.body.email)))
-            return res.status(400).send('Invalid email');
-        else
-            gameData.email = req.body.email;
-    }
+    if (!(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(req.body.email)))
+        return res.status(400).send('Invalid email');
+    else
+        gameData.email = req.body.email;
 
     gameData.gameCode = req.body.gameCode;
     gameData.password = req.body.password;
@@ -76,9 +74,10 @@ exports.deleteGameByCode = (req, res, next) => {
 exports.changeGameStatus = (req, res, next) => {
     Game.findOne({gameCode: req.params.gameCode}, (err, game) => {
         if (!game) return res.status(404).send('No game with that code');
-        if (!game.livingPlayers) return res.status(404).send('No players in this game');
+        if (!game.livingPlayers) return res.status(400).send('No players in this game');
         if (game.gameStatus === 2) return res.status(400).send('Game already ended');
         if (game.gameStatus === 0) {
+            // assign targets
             game.livingPlayers = shuffle(game.livingPlayers);
 
             for (var i = 0; i < game.livingPlayers.length; i++) {
@@ -99,11 +98,7 @@ exports.changeGameStatus = (req, res, next) => {
             return res.status(400).send('Error changing game status');
         }
         game.save((err) => {
-            if (err) {
-                if (err.code === 11000)
-                    return res.status(400).send('Error changing game status');
-                return next(err);
-            }
+            if (err) return next(err);
             return res.sendStatus(200);
         });
     })

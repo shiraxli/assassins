@@ -2,6 +2,7 @@ const schemas = require('../models/schemas/game');
 const Game = schemas[0];
 const Player = schemas[1];
 
+// TODO: find using subdocuments
 exports.findPlayerById = (gameCode, id, callback) => {
     Game.findOne({ gameCode: gameCode }, (err, game) => {
         if (err) return callback(err);
@@ -16,10 +17,7 @@ exports.findPlayerById = (gameCode, id, callback) => {
             }
         };
         if (!player) {
-            /*var playerError = new Error('No player with that id');
-            playerError.status = 404;
-            return callback(playerError);*/
-            callback(null);
+            callback();
         } else {
             callback(null, player, game);
         }

@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
-const Game = require('../models/schemas/game');
+const schemas = require('../models/schemas/game');
+const Game = schemas[0];
 const config = require('../models/config');
 
 var transporter = nodemailer.createTransport({
