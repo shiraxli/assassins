@@ -47,7 +47,7 @@ exports.loginPlayer = function(req, res, next) {
     helper.findPlayerByEmail(req.body.gameCode, req.body.email, (err, player, game) => {
         if (err) return next(err);
         if (!player) return res.status(404).send('No player with that email');
-        player.comparePassword(req.body.password, (err, isMatch) => {
+        player.comparePlayerPassword(req.body.password, (err, isMatch) => {
             if (err) return next(err);
             if (!isMatch) return res.status(401).send('Incorrect password');
 
@@ -72,11 +72,12 @@ exports.loginPlayer = function(req, res, next) {
 
 };
 
-exports.adminRequired = (req, res, next) => validateToken(req, res, next, true);
+exports.adminRequired = (req, res, next) => { validateToken(req, res, next, true); }
 
-exports.validateToken = (req, res, next) => validateToken(req, res, next);
+exports.validateToken = (req, res, next) => { validateToken(req, res, next, false); }
 
-function validateToken(req, res, next, isAdmin) = {
+// this is broken rn
+function validateToken(req, res, next, isAdmin) {
     var token = req.body.token || req.query.token || req.headers['x-access-token'];
 
     if (!token) return res.status(403).send('This endpoint requires a token');
@@ -93,22 +94,19 @@ function validateToken(req, res, next, isAdmin) = {
     Game.findById(decoded.gameId, (err, game) => {
         if (err) return next(err);
         if (!game) return res.status(403).send('Invalid game');
-        if (token !== game.token)
-            return res.status(403).send('Expired token because token isn\'t in db');
-
+        if (isAdmin) {
+            if (token !== game.token) return res.status(403).send('Expired admin token');
+        } else {
+            helper.findPlayerById(decoded.gameCode, decoded.userId, (err, player, game) => {
+                if (err) return next(err);
+                if (!player) return res.status(403).send('Invalid player');
+                if (token !== player.token)
+                    return res.status(403).send('Expired player token');
+                req.player = decoded;
+            });
+        }
         req.game = { gameId: decoded.gameId, gameCode: decoded.gameCode };
-    });
+        next();
+    })
 
-    if (!isAdminRequired) {
-        helper.findPlayerById(decoded.gameCode, decoded.userId, (err, player, game) => {
-            if (err) return next(err);
-            if (!player) return res.status(403).send('Invalid player');
-            if (token !== player.token)
-                return res.status(403).send('Expired token because token is not in db');
-
-            req.player = decoded;
-        });
-    }
-
-    next();
 }

@@ -56,9 +56,8 @@ exports.getAllPlayers = (req, res, next) => {
     });
 };
 
-
-
 exports.getPlayerById = (req, res, next) => {
+    console.log(req.params.id);
     helper.findPlayerById(req.params.gameCode, req.params.id, (err, player, game) => {
         if (err) return next(err);
         if (!player) return res.status(404).send('No player with that id');

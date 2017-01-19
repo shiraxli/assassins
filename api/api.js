@@ -10,6 +10,7 @@ const config = require('./models/config');
 
 const players = require('./controllers/players.js');
 const games = require('./controllers/games.js');
+const auth = require('./controllers/auth.js');
 
 // http://mongoosejs.com/docs/promises.html
 mongoose.Promise = global.Promise;
