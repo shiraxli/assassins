@@ -49,7 +49,7 @@ router.route('/games/:gameCode')
 	.get(auth.validateToken, games.getGameByCode)
 	.put(auth.adminRequired, games.updateGameByCode)
 	.delete(auth.adminRequired, games.deleteGameByCode)
-    .post(auth.adminRequired, games.startGame);
+    .post(auth.adminRequired, games.changeGameStatus);
 
 router.route('/games/:gameCode/players')
 	.get(auth.adminRequired, players.getAllPlayers)
