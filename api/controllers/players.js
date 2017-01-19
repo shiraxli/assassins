@@ -66,9 +66,6 @@ exports.getPlayerById = (req, res, next) => {
     });
 };
 
-
-// TO DO
-
 exports.updatePlayerById = (req, res, next) => {
     helper.findPlayerById(req.params.gameCode, req.params.id, (err, player, game) => {
         if (err) return next(err);
@@ -120,17 +117,25 @@ exports.deletePlayerById = (req, res, next) => {
     });
 };
 
-//
+//TODO: Check backend api points
+
 exports.submitKill = (req, res, next)  => {
-    helper.findPlayerById(req.params.gameCode, req.params.id, (err, player, game) => {
+    helper.findPlayerById(req.params.gameCode, req.params.id, (err, killer, game) => {
         if (err) return next(err);
-        if (!player) return res.status(404).send('No player with that id');
-        newKill = player.target.victim;
-        console.log(newKill);
-        newKill.killedBy.killer = player;
-        newKill.killedBy.killTime = player.target.timeKilled = getTime(); 
-        game.markModified('livingPlayers');
-        return res.sendStatus(200);
+        if (!killer) return res.status(404).send('No killer with that id');
+        victimId = killer.target.victim;
+        var found = false;
+        for(var i = 0; i < game.livingPlayers.length; i++) {
+            if(!found && String(game.livingPlayers[i]._id) === victimId) {
+                game.livingPlayers[i].killedBy.killer = killer._id;
+                game.livingPlayers[i].killedBy.killTime = killer.target.timeKilled = new Date();
+                game.markModified('livingPlayers');
+            }
+        }
+        if(!found)
+            return res.status(404).send('No victim with that id')
+        else
+            return res.sendStatus(200);
     });
 };
 
@@ -140,7 +145,7 @@ exports.getUnapprovedKills = (req, res, next) => {
         if (!game) return res.status(400).send('No game with that game code');
         var unapproved = [];
         for (var i = 0; i < game.livingPlayers.length; i++) {
-            if(game.livingPlayers[i].killedBy.killer)
+            if(game.livingPlayers[i].killedBy.killer && !game.livingPlayers[i].deathApproved)
                 unapproved.push(games.livingPlayers[i]);
         }
         return res.json(unapproved);
@@ -148,29 +153,27 @@ exports.getUnapprovedKills = (req, res, next) => {
 }
 
 exports.approveKill = (req, res, next) => {
-    helper.findPlayerById(req.params.gameCode, req.params.id, (err, player, game) => {
+    helper.findPlayerById(req.params.gameCode, req.params.id, (err, killer, game) => {
         if (err) return next(err);
-        if (!player) return res.status(404).send('No player with that id');
-
-        // TODO : check time or unapprove kill?
-
-        deadVictim = player.target.victim;
-        player.target.victim = deadVictim.target;
-        player.target.timeAssigned = getTime();
-        player.target.timeKilled = null;
+        if (!killer) return res.status(404).send('No killer with that id');
+        // TODO : At the moment, no way to check if kill is within time limit (need to set some config global for that?)
+        // No way to not approve kill yet, not sure how the route works for that, should it be a query?
+        victimId = killer.target.victim;
         var found = false;
         for (var i = 0; i < game.livingPlayers.length; i++) {
-            if (!found && String(game.livingPlayers[i]._id) === deadVictim.id) {
+            if (!found && String(game.livingPlayers[i]._id) === victimId) {
                 found = true;
+                killer.target.victim = game.livingPlayers[i].target.victim;
+                killer.target.timeAssigned = new Date();
+                killer.target.timeKilled = null;
+                game.livingPlayers[i].deathApproved = true;
+                game.killedPlayers.push(game.livingPlayers[i]);
+                game.markModified('killedPlayers');
                 game.livingPlayers.splice(i, 1);
                 game.markModified('livingPlayers');
             }
         }
-        if(found) {
-            game.killedPlayers.push(deadVictim);
-            game.markModified('killedPlayers');
-        }
-        else
-            return res.status(404).send('No user with that id');
+        if(!found) 
+            return res.status(404).send('No victim with that id');
     });
 };
