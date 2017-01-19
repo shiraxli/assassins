@@ -2,3 +2,5 @@
 **/node_modules
 **/.DS_Stores
 **.sw?
+frontend/public/js/script.min.js
+api/.mongo_pid

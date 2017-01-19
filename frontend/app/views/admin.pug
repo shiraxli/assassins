@@ -1,0 +1,18 @@
+extends template
+
+block content
+    form#js-login-form.form
+        h1.title.center Admin
+        #js-error-message
+        button.form-input.button(type='button' onclick='') Start Game
+        #remove-users
+            ul
+                each user in users
+                li user.name
+                button.form-input.button(type='button' onclick='') Delete        
+
+        button.form-input.button(type='button' onclick='')End Game
+    
+edit rules
+remove users
+approve kills   

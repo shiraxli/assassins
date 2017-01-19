@@ -17,22 +17,25 @@ function submitOnEnterKey(submitFunction, targetForm) {
 
 }
 
-function submitGamesForm() {
+function submitCreateForm() {
     var data = {};
     var errorMessage = '';
 
     if (form.gameName.value) data.gameName = form.gameName.value;
     if (!form.gameCode.value) {
+        error(form.gameCode);
         errorMessage += 'Please Enter Game Code; ';
     } else {
         data.gameCode = form.gameCode.value;
     }
     if (!form.email.value || !validateEmail(form.email)) {
+        error(form.email);
         errorMessage += 'Please Enter Proper Email; ';
     } else {
         data.email = form.email.value;
     }
     if (!form.password.value) {
+        error(form.password);
         errorMessage += 'Please Enter Password; ';
     } else {
         data.password = form.password.value
@@ -43,7 +46,7 @@ function submitGamesForm() {
 
     if (errorMessage) return displayError(errorMessage);
 
-    fetch('/games', {
+    fetch('/create', {
         headers: {'Content-Type': 'application/json'},
         method: 'POST',
         body: JSON.stringify(data)
