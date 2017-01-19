@@ -31,14 +31,16 @@ exports.createPlayer = (req, res, next) => {
     playerData.password = bcrypt.hashSync(req.body.password);
 
     var newPlayer = new Player(playerData);
-    Game.findOne({ gameCode: req.params.gameCode }).exec().then(function (game) {
+    Game.findOne({ gameCode: req.params.gameCode }, (err, game) => {
+        if (err) return next(err);
         if (!game) return res.status(404).send('No game with that game code');
         game.livingPlayers.push(newPlayer);
         game.markModified('livingPlayers');
-        return game.save();
-    }).then(function (game) {
-        return res.sendStatus(200);
-    }).catch(function (err) { return next(err); });
+        game.save((err) => {
+            if (err) return next(err);
+            return res.sendStatus(200);
+        });
+    });
 };
 
 exports.getAllPlayers = (req, res, next) => {
@@ -86,13 +88,14 @@ exports.updatePlayerById = (req, res, next) => {
 
         game.save((err) => {
             if (err) return next(err);
-            return res.json(player);
+            return res.sendStatus(200);
         });
     });
 };
 
 exports.deletePlayerById = (req, res, next) => {
-    Game.findOne({ gameCode: req.params.gameCode }).exec().then(function(game) {
+    Game.findOne({ gameCode: req.params.gameCode }, (err, game) => {
+        if (err) return next(err);
         if (!game) return res.status(404).send('No game with that game code');
         var found = false;
         for (var i = 0; i < game.livingPlayers.length; i++) {
@@ -110,23 +113,39 @@ exports.deletePlayerById = (req, res, next) => {
             }
         }
         if (!found) return res.status(404).send('No user with that id');
-        return game.save();
-    }).then(function (player) {
-        return res.sendStatus(200);
-    }).catch(next);
+        game.save((err) => {
+            if (err) return next(err);
+            return res.sendStatus(200);
+        });
+    });
 };
 
-// 
+//
 exports.submitKill = (req, res, next)  => {
     helper.findPlayerById(req.params.gameCode, req.params.id, (err, player, game) => {
         if (err) return next(err);
         if (!player) return res.status(404).send('No player with that id');
         newKill = player.target.victim;
+        console.log(newKill);
         newKill.killedBy.killer = player;
         newKill.killedBy.killTime = player.target.timeKilled = getTime(); 
+        game.markModified('livingPlayers');
         return res.sendStatus(200);
     });
 };
+
+exports.getUnapprovedKills = (req, res, next) => {
+    Game.findOne({ gameCode: req.params.gameCode }, (err, game) => {
+        if (err) return next(err);
+        if (!game) return res.status(400).send('No game with that game code');
+        var unapproved = [];
+        for (var i = 0; i < game.livingPlayers.length; i++) {
+            if(game.livingPlayers[i].killedBy.killer)
+                unapproved.push(games.livingPlayers[i]);
+        }
+        return res.json(unapproved);
+    });
+}
 
 exports.approveKill = (req, res, next) => {
     helper.findPlayerById(req.params.gameCode, req.params.id, (err, player, game) => {

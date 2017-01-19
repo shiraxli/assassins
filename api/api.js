@@ -53,11 +53,13 @@ router.route('/games/:gameCode')
 router.route('/games/:gameCode/players')
 	.get(players.getAllPlayers)
 	.post(players.createPlayer);
+router.route('/games/:gameCode/kills')
+    .get(players.getUnapprovedKills)
 router.route('/games/:gameCode/players/:id/kills')
-    .post(players.approveKill);
+    .post(players.approveKill)
+    .put(players.submitKill);
 router.route('/games/:gameCode/players/:id')
 	.get(players.getPlayerById)
-    .post(players.submitKill)
 	.put(players.updatePlayerById)
 	.delete(players.deletePlayerById);
 
