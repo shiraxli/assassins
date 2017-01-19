@@ -34,7 +34,7 @@ exports.createGame = (req, res, next) => {
                 return res.status(400).send('Game code already registered');
             return next(err);
         }
-        return res.sendStatus(200);
+        next();
     });
 }
 
@@ -73,38 +73,41 @@ exports.deleteGameByCode = (req, res, next) => {
     });
 }
 
-exports.startGame = (req, res, next) => {
-    console.log("starting the game");
+exports.changeGameStatus = (req, res, next) => {
     Game.findOne({gameCode: req.params.gameCode}, (err, game) => {
-
         if (!game) return res.status(404).send('No game with that code');
         if (!game.livingPlayers) return res.status(404).send('No players in this game');
-        console.log(game.livingPlayers);
-        // shuffle array
-        game.livingPlayers = shuffle(game.livingPlayers);
-        console.log(game.livingPlayers);
+        if (game.gameStatus === 2) return res.status(400).send('Game already ended');
+        if (game.gameStatus === 0) {
+            game.livingPlayers = shuffle(game.livingPlayers);
 
-        for (var i = 0; i < game.livingPlayers.length; i++) {
-            if (i === game.livingPlayers.length -1) {
-                game.livingPlayers[i].target.victim = game.livingPlayers[0];
-            } else {
-                game.livingPlayers[i].target.victim = game.livingPlayers[i+1];
+            for (var i = 0; i < game.livingPlayers.length; i++) {
+                if (i === game.livingPlayers.length -1) {
+                    game.livingPlayers[i].target.victim = game.livingPlayers[0];
+                } else {
+                    game.livingPlayers[i].target.victim = game.livingPlayers[i+1];
+                }
+                game.livingPlayers[i].target.timeAssigned = new Date();
             }
-            game.livingPlayers[i].target.timeAssigned = new Date();
+            game.gameStatus = 1;
+            game.markModified("livingPlayers", "gameStatus");
+        } else if (game.gameStatus === 1) {
+            game.gameStatus = 2;
+            game.markModified("gameStatus");
         }
-        game.gameStatus = 1;
-        game.markModified("livingPlayers", "gameStatus");
+        else {
+            return res.status(400).send('Error changing game status');
+        }
         game.save((err) => {
             if (err) {
                 if (err.code === 11000)
-                    return res.status(400).send('Error assigning targets');
+                    return res.status(400).send('Error changing game status');
                 return next(err);
             }
             return res.sendStatus(200);
         });
     })
 }
-
 
 // https://github.com/coolaj86/knuth-shuffle
 function shuffle(array) {

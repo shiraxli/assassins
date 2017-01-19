@@ -1,52 +1,82 @@
-const User = require('../models/schemas/user');
+const schemas = require('../models/schemas/game');
+const Game = schemas[0];
+const Player = schemas[1];
 const jwt = require('jwt-simple');
 const config = require('../models/config');
+const helper = require('./helpers');
 
-exports.loginUser = function(req, res, next) {
+exports.loginAdmin = (req, res, next) => {
+    if (typeof req.body.gameCode !== 'string')
+        return res.status(400).send('Missing game code');
+    if (typeof req.body.password !== 'string')
+        return res.status(400).send('Missing password');
+
+    Game.findOne({ gameCode: req.body.gameCode }, (err, game) => {
+        if (err) return next(err);
+        if (!game) return res.status(400).send('No game with that game code');
+
+        game.comparePassword(req.body.password, (err, isMatch) => {
+            if (err) return next(err);
+            if (!isMatch) return res.status(401).send('Incorrect password');
+
+            var payload = {
+                gameId: game._id,
+                gameCode: game.gameCode
+            };
+
+            var token = jwt.encode(payload, config.secret);
+
+            game.token = token;
+
+            game.save((err) => {
+                if (err) return next(err);
+                return res.json({ token: token });
+            });
+        })
+    });
+}
+
+exports.loginPlayer = function(req, res, next) {
+    if (typeof req.body.gameCode !== 'string')
+        return res.status(400).send('Missing game code');
     if (typeof req.body.email !== 'string')
         return res.status(400).send('Missing email');
     if (typeof req.body.password !== 'string')
         return res.status(400).send('Missing password');
 
-    User.findOne({ email: req.body.email }, function(err, user) {
+    helper.findPlayerByEmail(req.body.gameCode, req.body.email, (err, player, game) => {
         if (err) return next(err);
-        if (!user) return res.status(400).send('No user with that email');
-        if (!user.isAdmin && !user.isSuperAdmin)
-            return res.status(403).send('No admin with that email');
-
-        user.comparePassword(req.body.password, function(err, isMatch) {
+        if (!player) return res.status(404).send('No player with that email');
+        player.comparePlayerPassword(req.body.password, (err, isMatch) => {
             if (err) return next(err);
             if (!isMatch) return res.status(401).send('Incorrect password');
 
             var payload = {
-                id: user._id,
-                email: user.email,
-                companyName: user.companyName,
-                isAdmin: !!user.isAdmin,
-                isSuperAdmin: !!user.isSuperAdmin
+                gameId: game._id,
+                gameCode: game.gameCode,
+                playerId: player._id
             };
 
             var token = jwt.encode(payload, config.secret);
 
-            user.token = token;
+            player.token = token;
+            if (player.deathApproved) game.markModified('killedPlayers');
+            else game.markModified('livingPlayers');
 
-            user.save(function(err) {
+            game.save((err) => {
                 if (err) return next(err);
-                return res.json({token: token});
+                return res.json({ token: token });
             });
-        });
+        })
     });
+
 };
 
-exports.adminRequired = function(req, res, next) {
-    validateToken(req, res, next, { adminRequired: true });
-};
+exports.adminRequired = (req, res, next) => { validateToken(req, res, next, true); }
 
-exports.superAdminRequired = function(req, res, next) {
-    validateToken(req, res, next, { superAdminRequired: true });
-};
+exports.validateToken = (req, res, next) => { validateToken(req, res, next, false); }
 
-function validateToken(req, res, next, c) {
+function validateToken(req, res, next, isAdmin) {
     var token = req.body.token || req.query.token || req.headers['x-access-token'];
 
     if (!token) return res.status(403).send('This endpoint requires a token');
@@ -57,21 +87,29 @@ function validateToken(req, res, next, c) {
         return res.status(403).send('Failed to authenticate token');
     }
 
-    User.findById(decoded.id, function(err, user) {
+    if (isAdmin && !!decoded.playerId)
+        return res.status(403).send('Admin privileges required');
+
+    Game.findById(decoded.gameId, (err, game) => {
         if (err) return next(err);
-        if (!user) return res.status(403).send('Invalid user');
-        if (token !== user.token)
-            return res.status(403).send('Expired token because token isn\'t in db');
-        if (decoded.isAdmin !== !!user.isAdmin || decoded.isSuperAdmin !== !!user.isSuperAdmin)
-            return res.status(403).send('Expired token because things don\'t match');
-       
-        if (!user.isAdmin && !user.isSuperAdmin && c.adminRequired)
-            return res.status(403).send('Admin privileges required');
-        if (!user.isSuperAdmin && c.superAdminRequired)
-            return res.status(403).send('SuperAdmin privileges required');
+        if (!game) return res.status(403).send('Invalid game');
+        if (!!decoded.playerId) {
+            if (req.params.id && req.params.id !== decoded.playerId)
+                return res.status(403).send('Incorrect player');
+            helper.findPlayerById(decoded.gameCode, decoded.playerId, (err, player, game) => {
+                if (err) return next(err);
+                if (!player) return res.status(403).send('Invalid player');
+                if (token !== player.token)
+                    return res.status(403).send('Expired player token');
+                req.game = { gameId: decoded.gameId, gameCode: decoded.gameCode };
+                req.player = decoded;
+                next();
+            });
+        } else {
+            if (token !== game.token) return res.status(403).send('Expired admin token');
+            req.game = decoded;
+            next();
+        }
+    })
 
-        req.user = decoded;
-
-        next();
-    });
 }
