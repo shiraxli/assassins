@@ -10,7 +10,7 @@ exports.findPlayerById = (gameCode, id, callback) => {
             e.status = 404;
             return callback(e);
         }
-        var player = game.allPlayers.id(id);
+        var player = game.livingPlayers.id(id) || game.killedPlayers.id(id);
         if (!player) callback();
         else callback(null, player, game);
     })
