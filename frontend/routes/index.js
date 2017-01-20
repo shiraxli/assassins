@@ -27,6 +27,10 @@ router.post('/join', (req, res, next) => {
     }).pipe(res);
 });
 
+router.post('/login/player', (req, res, next) => {
+    re
+})
+
 router.get('/login/player', (req, res, next) => {
     return res.render('playerlogin', {title: 'Player Login' });
 });

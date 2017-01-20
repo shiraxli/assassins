@@ -110,9 +110,6 @@ function joinGame() {
     }).catch(submitError);
 }
 
-
-{ headers: { 'x-access-token': localStorage.token } }
-
 function changeGameStatus() {
     // uses Game Token
     var data = JSON.parse(atob(localStorage.token.split('.')[1]));
