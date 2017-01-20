@@ -87,7 +87,7 @@ function fetchPlayer() {
     }).then(function(res) {
         if (!res.ok)
             return submitError();
-        res.json().then(function(player) { populateProfilePage(player)  }) 3
+        res.json().then(function(player) { populateProfilePage(player)  })
     }).catch(submitError);
 }
 
@@ -103,6 +103,7 @@ function populatePlayersPage(players) {
 }
 
 function populateProfilePage (player) {
+    console.log(player);
     var kills = document.getElementById('kills');
     document.getElementById('firstName').innerHTML = player.firstName;
     document.getElementById('target').innerHTML = player.target;
