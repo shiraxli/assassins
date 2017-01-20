@@ -72,7 +72,6 @@ exports.getPlayerById = (req, res, next) => {
         // get their target
         helper.findPlayerById(req.params.gameCode, player.target.victim, (err, victim, game) => {
             if (err) return next(err);
-            if (!victim) return res.status(404).send("Victim not found");
             var victimData = {
                 name: victim.firstName + ' ' + victim.lastName,
                 email: victim.email
@@ -151,6 +150,21 @@ exports.getUnapprovedKills = (req, res, next) => {
         }
         return res.json(unapproved);
     });
+}
+
+exports.getMyKills = (req, res, next) => {
+    Game.findOne({gameCode: req.params.gameCode}, (err, game) => {
+        if (err) return next(err);
+        if (!game) return res.status(404).send('No game with that code');
+        var kills = [];
+        for (var i = 0; i < game.killedPlayers.length; i++) {
+            if (game.killedPlayers[i].killer === req.params.id) {
+                kills.push(game.killedPlayers[i].fullName);
+            }
+        }
+        return res.json(kills);
+    });
+
 }
 
 exports.approveKill = (req, res, next) => {

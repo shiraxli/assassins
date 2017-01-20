@@ -54,6 +54,7 @@ router.route('/games/:gameCode/players')
 router.route('/games/:gameCode/kills')
     .get(auth.adminRequired, players.getUnapprovedKills)
 router.route('/games/:gameCode/players/:id/kills')
+    .get(auth.validateToken, players.getMyKills)
     .post(auth.adminRequired, players.approveKill)
     .put(auth.validateToken, players.submitKill);
 
