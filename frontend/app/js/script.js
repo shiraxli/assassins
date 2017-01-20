@@ -12,7 +12,7 @@ function submitOnEnterKey(submitFunction, targetForm) {
         if (type === 'text' || type === 'email' || type === 'password' ||
             type === 'number' || type === 'phone')
         child.onkeydown = runOnKeydown;
-                }
+    }
 }
 
 function submitCreateForm() {

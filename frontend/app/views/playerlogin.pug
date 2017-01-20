@@ -8,3 +8,6 @@ block content
         input.form-input(type='text' name='email' placeholder='Email' onFocus='clearError(this)')
         input.form-input(type='password' name='password' placeholder='Password' onFocus='clearError(this)')
         button.form-input.button(type='button' onclick='loginPlayer()') Login
+
+block postscript
+    script submitOnEnterKey(loginPlayer);
