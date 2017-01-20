@@ -50,10 +50,15 @@ router.post('/admin/getPlayers', (req, res, next) => {
         headers: { 'x-access-token': req.headers['x-access-token'] }
     }).pipe(res);
 });
+router.post('/admin/getPlayers', (req, res, next){
+    request.get(config.apiUrl + '/games/' + req.body.gameCode + '/players/' + req.body.target.victim, {
+        headers: { 'x-access-token': req.headers['x-access-token'] }
+    }).pipe(res);
+});
 
 router.delete('/removePlayer', (req, res, next) => {
-    request.delete({
-        url: config.apiUrl + '/games/' + req.body.gameCode + '/players/' + req.body.user_id
+    request.delete(config.apiUrl + '/games/' + req.body.gameCode + '/players/' + req.body.user_id, {
+        headers: { 'x-access-token': req.headers['x-access-token'] }
     }).pipe(res);
 });
 

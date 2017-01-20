@@ -55,7 +55,7 @@ function submitCreateForm() {
         });
     }).catch(submitError);
 }
-function fetchPlayers() {
+function fetchAdmin() {
     if(!localStorage.token) window.location = '/';
     var decodedToken = JSON.parse(atob(localStorage.token.split('.')[1]));
     fetch('/admin/getPlayers', { 
@@ -68,19 +68,71 @@ function fetchPlayers() {
     }).then(function(res) {
             if (!res.ok)
                 return submitError();
-            res.json().then(function(players) { populatePlayersPage(players)  }) 
+            res.json().then(function(players) { populateAdminPage(players)  }) 
     }).catch(submitError);
 }
-function populatePlayersPage(players) {
-    var playersDiv = document.getElementById('js-players');
-    console.log(players);
+function populateAdminPage(players) {
+    var adminDiv = document.getElementById('js-admin');
+    var tbl = document.createElement('table');
+    var tblBody = document.createElement('tbody');
+
     players.forEach(function(p) {
-        var playerDiv = document.createElement('div');
-        playerDiv.innerHTML = p.firstName
-        console.log(p.firstName);
-        playersDiv.appendChild(playerDiv);
+        var row = document.createElement('tr');
+        var killerName = document.createElement('td');
+        killerName.innerHTML = p.firstName + ' ' +p.lastName;
+
+        var targetName = document.createElement('td');
+        var target = searchTarget(p)
+        targetName.innerHTML = target.firstName + ' ' + target.lastName;
+
+        var timeAssigned = document.createElement('td');
+        timeAssigned.innerHTML = p.target.timeAssigned;
+        
+        var timeKilled = document.createElement('td');
+        timeKilled.innerHTML = p.killedBy.killTime;
+        
+        var approve = document.createElement('button');
+        if (!p.killedBy)
+            // style to make no onclick with different background
+        else
+            approve.setAttribute('onclick', 'approveKill("' + p.killedBy.killer + '")' ); 
+        approve.innerHTML = 'approve';
+
+        var remove = document.createElement('button');
+        remove.setAttribute('onclick', 'removeUser("' + p._id + '")' );
+        remove.innerHTML = 'remove';
+        // killer target time_assigned time_killed approve delete
+        row.appendChild(killerName);
+        row.appendChild(targetName);
+        row.appendChild(timeAssigned);
+        row.appendChild(timeKilled);
+        row.appendChild(approve);
+        row.appendChild(remove);
+        tblBody.appendChild(row);
     });
+    tbl.appendChild(tblBody);
+    adminDiv.appendChild(tbl);
 }
+function searchTarget(player) {
+    var decodedToken = JSON.parse(atob(localStorage.token.split('.')[1]));
+    player.gameCode = decodedToken.gameCode
+    fetch('/admin/getTarget', {
+        headers: {
+            'x-access-token': localStorage.token,
+            'Content-Type': 'application/json'
+        },
+        method: 'POST',
+        body: JSON.stringify(player)
+    }).then(function(res) {
+        if (!res.ok)
+            return submitError();
+        res.json().then(function(players) { return players })        
+    }).catch(submitError);
+}
+function approveKill(killerId) {
+    
+}
+
 
 function joinGame() {
     var data = {};
@@ -132,9 +184,6 @@ function joinGame() {
     }).catch(submitError);
 }
 
-
-{ headers: { 'x-access-token': localStorage.token } }
-
 function changeGameStatus() {
     // uses Game Token
     var data = JSON.parse(atob(localStorage.token.split('.')[1]));
@@ -151,24 +200,23 @@ function changeGameStatus() {
         // implement what happens when you start game
     }).catch(submitError);
 }
-function removeUser(name) {
-    // uses User Token (gameCode, user_id)
+function removeUser(playerId) {
     var decodedToken = JSON.parse(atob(localStorage.token.split('.')[1]));
     var data = {
         gameCode: decodedToken.gameCode ,
-        user_id: decodedToken._id
+        user_id: playerId
     };
 
     fetch('/removePlayer', {
         headers: {
+            'x-access-token':localStorage.token,
             'Content-type': 'application/json'
         },
         method: 'DELETE',
         body: JSON.stringify(data)
     }).then(function(res) {
         if(!res.ok) return submitError(res);
-        else console.log('Deleted Player');
-        // Update What Happens if You Delete User
+        console.log('Deleted Player');
     }).catch(submitError);
 }
 function endGame() {
