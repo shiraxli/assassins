@@ -43,38 +43,42 @@ function submitCreateForm() {
     }
 
     if (errorMessage) return displayError(errorMessage);
-    console.log(data);
     fetch('/create', {
         headers: {'Content-Type': 'application/json'},
         method: 'POST',
         body: JSON.stringify(data)
     }).then(function(res) {
         if (!res.ok) return submitError(res)
-        //else return res.json.then(function(result) {
-            // localStorage.token = result.token;
-        else
-            window.location = '/admin';           
-        //});
+        res.json().then(function(result) {
+             localStorage.token = result.token;
+             window.location = '/admin';           
+        });
     }).catch(submitError);
 }
 function fetchPlayers() {
     if(!localStorage.token) window.location = '/';
-    var decodedToken = JSON.parse(atob(localStorage.split('.')[1]));
+    var decodedToken = JSON.parse(atob(localStorage.token.split('.')[1]));
     fetch('/admin/getPlayers', { 
-        headers: { 'x-access-token': localStorage.token  },
-        body: JSON.stringify(decodedToken)  
-    })
-        .then(function(res) {
+        headers: { 
+            'x-access-token': localStorage.token,
+            'Content-Type': 'application/json'
+        },
+        method: 'POST',
+        body: JSON.stringify({ gameCode: decodedToken.gameCode })
+    }).then(function(res) {
             if (!res.ok)
-                return console.log("There was an error with fetchPlayers");
+                return submitError();
             res.json().then(function(players) { populatePlayersPage(players)  }) 
-    }).catch(adminErrorHandler);
+    }).catch(submitError);
 }
 function populatePlayersPage(players) {
     var playersDiv = document.getElementById('js-players');
+    console.log(players);
     players.forEach(function(p) {
-        playersDiv.appendChild(p.firstName)
+        var playerDiv = document.createElement('div');
+        playerDiv.innerHTML = p.firstName
         console.log(p.firstName);
+        playersDiv.appendChild(playerDiv);
     });
 }
 
@@ -128,19 +132,15 @@ function joinGame() {
     }).catch(submitError);
 }
 
-
-{ headers: { 'x-access-token': localStorage.token } }
-
-function changeGameStatus() {
+function startGame() {
     // uses Game Token
     var data = JSON.parse(atob(localStorage.token.split('.')[1]));
     fetch('/changeGameStatus', {
         headers: {
-            'Content-type': 'application/json',
-            'x-access-token': localStorage.token
+            'Content-type': 'application/json'
         },
         method: 'POST',
-        body: data
+        body: JSON.stringify(data.gameCode)
     }).then(function(res) {
         if(!res.ok) return submitError(res);
         else console.log('Started Game');

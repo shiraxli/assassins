@@ -36,7 +36,6 @@ router.get('/login/admin', (req, res, next) => {
 
 router.post('/changeGameStatus', (req, res, next) => {
     request.post({
-        headers: { 'x-access-token': req.headers['x-access-token'] },
         url: config.apiUrl + '/games/' + req.body.gameCode,
         form: req.body
     }).pipe(res);
@@ -45,10 +44,7 @@ router.post('/changeGameStatus', (req, res, next) => {
 router.get('/admin', (req, res, next) => {
     return res.render('admin', {title: 'Admin'});
 });
-router.get('/admin/getPlayers', (req, res, next) => {
-    // is this right?
-    //decodedToken = JSON.parse(atob(req.headers['x-access-token'].split('.')[1]));
-    //console.log(decodedToken);
+router.post('/admin/getPlayers', (req, res, next) => {
     request.get(config.apiUrl + '/games/' + req.body.gameCode + '/players', {
         headers: { 'x-access-token': req.headers['x-access-token'] }
     }).pipe(res);
@@ -59,6 +55,5 @@ router.delete('/removePlayer', (req, res, next) => {
         url: config.apiUrl + '/games/' + req.body.gameCode + '/players/' + req.body.user_id
     }).pipe(res);
 });
-
 
 module.exports = router;
