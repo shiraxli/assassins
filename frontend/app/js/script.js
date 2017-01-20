@@ -187,6 +187,7 @@ function populateProfilePage (player) {
     var kills = document.getElementById('kills');
     document.getElementById('firstName').innerHTML = player[0].firstName;
     document.getElementById('target').innerHTML = player[1].name;
+    document.getElementById('kills').innerHTML = player[2];
 }
 
 function joinGame() {
