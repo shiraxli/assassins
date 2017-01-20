@@ -3,6 +3,10 @@ extends template
 block content
     form#js-login-form.form
         h1.form-title Admin Login
-        input.form-input(type='text' name='gameCode' placeholder='Game Code')
-        input.form-input(type='password' name='password' placeholder='Game Password')
-        button.form-input.button(type='button' onclick='submitForm') Submit   
+        #js-error-message
+        input.form-input(type='text' name='gameCode' placeholder='Game Code' onFocus='clearError(this)')
+        input.form-input(type='password' name='password' placeholder='Game Password' onFocus='clearError(this)')
+        button.form-input.button(type='button' onclick='loginAdmin()') Login
+
+block postscript
+    script submitOnEnterKey(loginAdmin);

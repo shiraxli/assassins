@@ -33,6 +33,12 @@ exports.createPlayer = (req, res, next) => {
     Game.findOne({ gameCode: req.params.gameCode }, (err, game) => {
         if (err) return next(err);
         if (!game) return res.status(404).send('No game with that game code');
+
+        for (var i = 0; i < game.allPlayers.length; i++) {
+            if (game.allPlayers[i].email === req.body.email)
+                return res.status(400).send('Email already registered');
+        }
+
         game.livingPlayers.push(newPlayer);
         game.markModified('livingPlayers');
         game.save((err) => {
@@ -126,7 +132,7 @@ exports.getUnapprovedKills = (req, res, next) => {
         if (!game) return res.status(400).send('No game with that game code');
         var unapproved = [];
         for (var i = 0; i < game.livingPlayers.length; i++) {
-            if(game.livingPlayers[i].killedBy.killer && !game.livingPlayers[i].deathApproved)
+            if(game.livingPlayers[i].killedBy.killer && !game.livingPlayers[i].killedBy.deathApproved)
                 unapproved.push(game.livingPlayers[i]);
         }
         return res.json(unapproved);
@@ -148,7 +154,7 @@ exports.approveKill = (req, res, next) => {
         killer.target.victim = killed.target.victim;
         killer.target.timeAssigned = Date.now();
         killer.target.timeKilled = null;
-        killed.deathApproved = true;
+        killed.killedBy.deathApproved = true;
         game.killedPlayers.push(killed);
         game.markModified('killedPlayers');
         killed.remove();
