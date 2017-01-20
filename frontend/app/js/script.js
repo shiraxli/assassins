@@ -183,7 +183,7 @@ function approveKill(killer_Id) {
 
 
 function populateProfilePage (player) {
-    console.log("Player " + player);
+    console.log(player);
     var kills = document.getElementById('kills');
     document.getElementById('firstName').innerHTML = player[0].firstName;
     document.getElementById('target').innerHTML = player[1].name;
