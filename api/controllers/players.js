@@ -34,6 +34,9 @@ exports.createPlayer = (req, res, next) => {
         if (err) return next(err);
         if (!game) return res.status(404).send('No game with that game code');
 
+        if (game.gameStatus !== 0)
+            return res.status(400).send('Sorry, this game is no longer accepting new players');
+
         for (var i = 0; i < game.allPlayers.length; i++) {
             if (game.allPlayers[i].email === req.body.email)
                 return res.status(400).send('Email already registered');
@@ -65,7 +68,18 @@ exports.getPlayerById = (req, res, next) => {
     helper.findPlayerById(req.params.gameCode, req.params.id, (err, player, game) => {
         if (err) return next(err);
         if (!player) return res.status(404).send('No player with that id');
-        return res.json(player);
+        // have player, but not their target
+        // get their target
+        helper.findPlayerById(req.params.gameCode, player.target.victim, (err, victim, game) => {
+            if (err) return next(err);
+            if (!victim) return res.status(404).send("Victim not found");
+            var victimData = {
+                name: victim.firstName + ' ' + victim.lastName,
+                email: victim.email
+            }
+            var data = [player, victimData];
+            return res.json(data)
+        })  
     });
 };
 
@@ -167,8 +181,15 @@ exports.approveKill = (req, res, next) => {
 
         game.save((err) => {
             if (err) return next(err);
-            //return sender.sendDeathNotification(req, res, next);
             return res.sendStatus(200);
         });
+
+        // saving and sending emails
+        /*game.save()
+        .then((killer, killed) => {
+            return sender.sendDeathEmails(killer, killed);
+        }).then((mailInfoArray) => {
+            return res.json(mailInfoArray);
+        }).catch((err) => { next(err); })*/
     });
 };

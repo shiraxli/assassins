@@ -58,9 +58,7 @@ function submitCreateForm() {
 function fetchAdmin() {
     if(!localStorage.token) window.location = '/';
     var decodedToken = JSON.parse(atob(localStorage.token.split('.')[1]));
-    // if(!localStorage.token || decodedToken.playerId) window.location = '/';
-    if(!localStorage.token) window.location = '/';
-    fetch('/admin/getPlayers', {
+    fetch('/admin/getAllPlayers', {
         headers: {
             'x-access-token': localStorage.token,
             'Content-Type': 'application/json'
@@ -77,6 +75,7 @@ function fetchAdmin() {
 function fetchPlayer() {
     if(!localStorage.token) window.location = '/';
     var decodedToken = JSON.parse(atob(localStorage.token.split('.')[1]));
+    console.log(decodedToken.playerId);
     fetch('/getPlayer', {
         headers: {
             'x-access-token': localStorage.token,
@@ -102,16 +101,16 @@ function populateAdminPage(players) {
         killerName.innerHTML = p.firstName + ' ' +p.lastName;
 
         var targetName = document.createElement('td');
-        var target = searchTarget(p.target.victim)
+        var target = searchTarget(p.target.victim);
         console.log(target);
-        targetName.innerHTML = target.firstName + ' ' + target.lastName;
+        targetName.innerHTML = target[1].name;
 
         var timeAssigned = document.createElement('td');
         timeAssigned.innerHTML = p.target.timeAssigned;
         
         var timeKilled = document.createElement('td');
         timeKilled.innerHTML = p.killedBy.killTime;
-        
+
         var approve = document.createElement('button');
         if (!p.killedBy) {
             // style to make no onclick with different background
@@ -141,20 +140,18 @@ function searchTarget(targetId) {
     var decodedToken = JSON.parse(atob(localStorage.token.split('.')[1]));
     data = {
         gameCode: decodedToken.gameCode,
-        target_Id : targetId
+        playerId : targetId
     };
-    console.log(player);
-    fetch('/admin/getTarget', {
+    fetch('/getPlayer', {
         headers: {
             'x-access-token': localStorage.token,
             'Content-Type': 'application/json'
         },
         method: 'POST',
-        body: JSON.stringify(player)
+        body: JSON.stringify(data)
     }).then(function(res) {
         if (!res.ok)
             return submitError();
-        console.log("hello");
         res.json().then(function(players) { return players })        
     }).catch(submitError);
 }
@@ -180,10 +177,10 @@ function approveKill(killer_Id) {
 
 
 function populateProfilePage (player) {
-    console.log(player);
+    console.log("Player " + player);
     var kills = document.getElementById('kills');
-    document.getElementById('firstName').innerHTML = player.firstName;
-    document.getElementById('target').innerHTML = player.target;
+    document.getElementById('firstName').innerHTML = player[0].firstName;
+    document.getElementById('target').innerHTML = player[1].name;
 }
 
 function joinGame() {

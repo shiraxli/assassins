@@ -2,14 +2,18 @@
 
 mobile-width = 600px
 text-color = black
+background-color = rgba(137, 8, 4, .8)
 
 *
     box-sizing border-box
+head
+    background-color background-color
 html, body
     height 100%
     margin 0
     padding 0
     color text-color
+    background-color background-color
 
 .quiet-link, .quiet-link:visited, .quiet-link:active
     color text-color
@@ -97,7 +101,7 @@ h1
 
 #home-page-buttons
     flexbox()
-    flex-direction row
+    flex-direction column
     flex-wrap wrap
     justify-content space-around
 

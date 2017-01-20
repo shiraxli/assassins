@@ -51,3 +51,24 @@ function sendDeathMails(player) {
 		transporter.sendMail(killerMailOptions)
 	]);
 };
+
+ exports.sendDeathEmails = (killer, victim) => {
+    var victimMailOptions = {
+		from: '"' + config.emailName + '" <' + config.emailAddress + '>',
+		to: victim.email,
+		subject: 'You\'ve been killed',
+		text: 'You were killed by ' + killer.fullName + '. Good game.'
+	};
+	var killerMailOptions = {
+		from: '"' + config.emailName + '" <' + config.emailAddress + '>',
+		to: killer.email,
+		subject: 'You\'ve have killed someone',
+		text: 'You have killed' + victim.fullName +
+			'. Good job. \n Your new target is' + victim.target.victim.fullName
+	};
+
+    return Promise.all([
+        transporter.sendMail(victimMailOptions),
+        transporter.sendMail(killerMailOptions)
+    ]);
+}
