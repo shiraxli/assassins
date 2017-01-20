@@ -1,4 +1,10 @@
 var form = document.forms[0];
+var modal = document.getElementsByClassName('modal')[0];
+
+document.body.onclick = function(e) {
+    if (e.target === modal)
+        modal.style.display = '';
+}
 
 function submitOnEnterKey(submitFunction, targetForm) {
     targetForm = targetForm || form;
@@ -70,7 +76,7 @@ function fetchAdmin() {
     }).then(function(res) {
             if (!res.ok)
                 return submitError();
-            res.json().then(function(players) { populateAdminPage(players)  }) 
+            res.json().then(function(players) { populateAdminPage(players)  })
     }).catch(submitError);
 }
 
@@ -89,7 +95,7 @@ function fetchPlayer() {
     }).then(function(res) {
         if (!res.ok)
             return submitError();
-        res.json().then(function(player) { populateProfilePage(player);  }) 
+        res.json().then(function(player) { populateProfilePage(player);  })
     }).catch(submitError);
 }
 
@@ -109,7 +115,7 @@ function populateAdminPage(players) {
 
         var timeAssigned = document.createElement('td');
         timeAssigned.innerHTML = p.target.timeAssigned;
-        
+
         var timeKilled = document.createElement('td');
         timeKilled.innerHTML = p.killedBy.killTime;
 
@@ -118,7 +124,7 @@ function populateAdminPage(players) {
             // style to make no onclick with different background
             console.log('Did Not Work');
         } else {
-            // approve.setAttribute('onclick', 'approveKill("' + p.killedBy.killer + '")' ); 
+            // approve.setAttribute('onclick', 'approveKill("' + p.killedBy.killer + '")' );
             approve.onclick = approveKill(p.killedBy.killer);
         }
         approve.innerHTML = 'approve';
@@ -156,7 +162,7 @@ function searchTarget(targetId) {
         if (!res.ok)
             return submitError();
         console.log("hello");
-        res.json().then(function(players) { return players })        
+        res.json().then(function(players) { return players })
     }).catch(submitError);
 }
 function approveKill(killer_Id) {
@@ -175,7 +181,7 @@ function approveKill(killer_Id) {
     }).then(function(res) {
         if(!res.ok)
             return submitError();
-        console.log('Successfully Approved Kill');        
+        console.log('Successfully Approved Kill');
     }).catch(submitError);
 }
 
@@ -412,3 +418,9 @@ function displayError(message) {
     errorDiv.innerHTML = message;
     errorDiv.style.visibility = 'visible';
 }
+
+////////////////// Modals /////////////////////////////
+function showModal() {
+    modal.style.display = 'block';
+}
+function hideModal() { modal.style.display = ''; }

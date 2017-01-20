@@ -4,7 +4,7 @@ mobile-width = 600px
 text-color = rgb(137, 8, 4)
 background-color = rgb(188, 188, 188)
 text-font = Lucida Sans Unicode, Lucida Grande, sans-serif
-button-color = #ddd
+button-background-color = #ddd
 
 *
     box-sizing border-box
@@ -76,6 +76,16 @@ h1
 .hidden
     display none
 
+.button
+    -webkit-transition-duration 0.2s
+    transition-duration 0.2s
+    background-color button-color
+    color text-color
+
+.button:hover
+    background-color text-color
+    color #ddd
+
 .error-message
     visibility hidden
     color red
@@ -94,7 +104,7 @@ h1
     background-color #000
     background-color rgba(0, 0, 0, .5)
 .modal-content
-    max-width 90%
+    max-width 30%
     margin 10% auto
     padding 2rem
     border default-border
@@ -110,6 +120,20 @@ h1
 
 .home-page-button
     margin 10px 30%
+    width auto
+    min-width 10%
+    padding 20px
+    border-radius 10px
+    font-size 16px
+
+#login-buttons
+    flexbox()
+    flex-direction column
+    flex-wrap wrap
+    justify-content space-around
+
+.login-button
+    margin 10px 10px
     width auto
     min-width 10%
     padding 20px
