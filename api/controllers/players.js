@@ -68,7 +68,18 @@ exports.getPlayerById = (req, res, next) => {
     helper.findPlayerById(req.params.gameCode, req.params.id, (err, player, game) => {
         if (err) return next(err);
         if (!player) return res.status(404).send('No player with that id');
-        return res.json(player);
+        // have player, but not their target
+        // get their target
+        helper.findPlayerById(req.params.gameCode, player.target.victim, (err, victim, game) => {
+            if (err) return next(err);
+            if (!victim) return res.status(404).send("Victim not found");
+            var victimData = {
+                name: victim.firstName + ' ' + victim.lastName,
+                email: victim.email
+            }
+            var data = [player, victimData];
+            return res.json(data)
+        })  
     });
 };
 

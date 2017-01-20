@@ -68,6 +68,7 @@ router.post('/admin/getPlayers', (req, res, next) => {
         headers: { 'x-access-token': req.headers['x-access-token'] }
     }).pipe(res);
 });
+
 router.post('/admin/getPlayers', (req, res, next) => {
     request.get(config.apiUrl + '/games/' + req.body.gameCode + '/players/' + req.body.target.victim, {
         headers: { 'x-access-token': req.headers['x-access-token'] }
