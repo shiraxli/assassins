@@ -70,15 +70,31 @@ exports.getPlayerById = (req, res, next) => {
         if (!player) return res.status(404).send('No player with that id');
         // have player, but not their target
         // get their target
-        helper.findPlayerById(req.params.gameCode, player.target.victim, (err, victim, game) => {
-            if (err) return next(err);
-            var victimData = {
-                name: victim.firstName + ' ' + victim.lastName,
-                email: victim.email
-            }
-            var data = [player, victimData];
+        if (game.gameStatus === 1) {
+            helper.findPlayerById(req.params.gameCode, player.target.victim, (err, victim, game) => {
+                if (err) return next(err);
+                var victimData = {
+                    name: victim.firstName + ' ' + victim.lastName,
+                    email: victim.email
+                }
+
+                Game.findOne({gameCode: req.params.gameCode}, (err, game) => {
+                    if (err) return next(err);
+                    if (!game) return res.status(404).send('No game with that code');
+                    var kills = [];
+                    for (var i = 0; i < game.killedPlayers.length; i++) {
+                        if (game.killedPlayers[i].killer === req.params.id) {
+                            kills.push(game.killedPlayers[i].fullName);
+                        }
+                    }
+                    var data = [player, victimData, kills];
+                    return res.json(data)
+                });
+            })
+        } else {
+            var data = [player]
             return res.json(data)
-        })  
+        }
     });
 };
 
