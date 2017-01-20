@@ -45,16 +45,19 @@ router.post('/changeGameStatus', (req, res, next) => {
 router.get('/admin', (req, res, next) => {
     return res.render('admin', {title: 'Admin'});
 });
+//
 router.post('/admin/getPlayers', (req, res, next) => {
     request.get(config.apiUrl + '/games/' + req.body.gameCode + '/players', {
         headers: { 'x-access-token': req.headers['x-access-token'] }
     }).pipe(res);
 });
+//
 router.post('/admin/getPlayers', (req, res, next) => {
     request.get(config.apiUrl + '/games/' + req.body.gameCode + '/players/' + req.body.target.victim, {
         headers: { 'x-access-token': req.headers['x-access-token'] }
     }).pipe(res);
 });
+//
 router.post('/admin/getTarget', (req, res, next) => {
     request.get(config.apiUrl + '/games/' + req.body.gameCode + 'players' + target_Id, {
         headers: { 'x-access-token': req.headers['x-access-token'] }
