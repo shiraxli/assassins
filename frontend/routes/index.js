@@ -42,15 +42,15 @@ router.post('/changeGameStatus', (req, res, next) => {
     }).pipe(res);
 });
 
-// is this right?
-router.get('/games/:gameCode/players', (req, res, next) => {
-    var gameCode = req.params.gameCode
-    request.get(config.apiUrl + '/games/' + gameCode + '/players', (err, response, body) => {
-        if(!err && response.statusCode == 200)
-            return res.render('/admin', {users: JSON.parse(body)});
-        else return res.render('/admin', {users: []});
-    });
+router.get('/admin', (req, res, next) => {
+    return res.render('admin', {title: 'Admin'});
 });
+router.post('/admin/getPlayers', (req, res, next) => {
+    request.get(config.apiUrl + '/games/' + req.body.gameCode + '/players', {
+        headers: { 'x-access-token': req.headers['x-access-token'] }
+    }).pipe(res);
+});
+
 router.delete('/removePlayer', (req, res, next) => {
     request.delete({
         url: config.apiUrl + '/games/' + req.body.gameCode + '/players/' + req.body.user_id

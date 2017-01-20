@@ -15,7 +15,7 @@ exports.createPlayer = (req, res, next) => {
         return res.status(400).send('No email');
     if (typeof req.body.password !== 'string')
         return res.status(400).send('No password');
-
+    // check that the user was not created before
     var playerData = {};
     playerData.firstName = req.body.firstName;
     playerData.lastName = req.body.lastName;

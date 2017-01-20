@@ -37,15 +37,14 @@ function sendDeathMails(player) {
 		from: '"' + config.emailName + '" <' + config.emailAddress + '>',
 		to: player.email.join(', '),
 		subject: 'You\'ve been killed',
-		text: 'You were killed by ' + player.killedBy.fullName + '. Good game.';
+		text: 'You were killed by ' + player.killedBy.fullName + '. Good game.'
 	};
 	var killerMailOptions = {
 		from: '"' + config.emailName + '" <' + config.emailAddress + '>',
 		to: player.email.join(', '),
 		subject: 'You\'ve have killed someone',
 		text: 'You have killed' + player.killedBy.fullName +
-			'. Good job. \n Your new target is' +
-			player.killedBy.target.victim.fullName;
+			'. Good job. \n Your new target is' + player.killedBy.target.victim.fullName
 	};
 	return Promise.all([
 		transporter.sendMail(victimMailOptions),
