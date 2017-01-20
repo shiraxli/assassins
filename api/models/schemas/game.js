@@ -10,12 +10,12 @@ var playerSchema = new Schema({
     email: {type: String, trim: true, required: true, index: true},
     password: {type: String, required: true},
     target: {
-        victim: Schema.ObjectId,
+        victim: {type: Schema.ObjectId, ref: 'Player'},
         timeAssigned: Date,
         timeKilled: Date
     },
     killedBy: {
-        killer: Schema.ObjectId,
+        killer: {type: Schema.ObjectId, ref: 'Player'},
         killTime: Date,
         deathApproved: {type: Boolean, default: false}
     },
