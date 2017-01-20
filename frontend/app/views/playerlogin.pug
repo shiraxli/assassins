@@ -3,7 +3,8 @@ extends template
 block content
     form#js-login-form.form
         h1.form-title Player Login
-        input.form-input(type='text' name='gameCode' placeholder='Game Code')
-        input.form-input(type='text' name='email' placeholder='Email')
-        input.form-input(type='password' name='password' placeholder='Password')
-        button.form-input.button(type='button' onclick='submitForm') Submit   
+        #js-error-message
+        input.form-input(type='text' name='gameCode' placeholder='Game Code' onFocus='clearError(this)')
+        input.form-input(type='text' name='email' placeholder='Email' onFocus='clearError(this)')
+        input.form-input(type='password' name='password' placeholder='Password' onFocus='clearError(this)')
+        button.form-input.button(type='button' onclick='loginPlayer()') Login
