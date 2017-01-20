@@ -41,6 +41,10 @@ router.get('/login/admin', (req, res, next) => {
     return res.render('adminlogin', {title: 'Admin Login' });
 });
 
+router.get('/player1', (req, res, next) => {
+    return res.render('player1', {title: 'Player 1' });
+});
+
 router.post('/changeGameStatus', (req, res, next) => {
     request.post({
         headers: { 'x-access-token': req.headers['x-access-token'] },
@@ -52,8 +56,15 @@ router.post('/changeGameStatus', (req, res, next) => {
 router.get('/admin', (req, res, next) => {
     return res.render('admin', {title: 'Admin'});
 });
+
 router.post('/admin/getPlayers', (req, res, next) => {
     request.get(config.apiUrl + '/games/' + req.body.gameCode + '/players', {
+        headers: { 'x-access-token': req.headers['x-access-token'] }
+    }).pipe(res);
+});
+
+router.post('/getPlayer', (req, res, next) => {
+    request.get(config.apiUrl + '/games/' + req.body.gameCode + '/players/' + req.body.playerId, {
         headers: { 'x-access-token': req.headers['x-access-token'] }
     }).pipe(res);
 });
