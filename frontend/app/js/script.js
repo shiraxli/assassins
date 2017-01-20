@@ -158,7 +158,7 @@ function searchTarget(targetId) {
     }).then(function(res) {
         if (!res.ok)
             return submitError();
-        res.json().then(function(players) { return players })        
+        res.json().then(function(players) { return players })
     }).catch(submitError);
 }
 function approveKill(killer_Id) {
