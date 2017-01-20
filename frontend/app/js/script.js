@@ -2,9 +2,11 @@ var form = document.forms[0];
 var modal = document.getElementsByClassName('modal')[0];
 
 document.body.onclick = function(e) {
-    if (e.target === modal)
-        modal.style.display = '';
+        if (e.target === modal)
+                    modal.style.display = '';
+
 }
+
 
 function submitOnEnterKey(submitFunction, targetForm) {
     targetForm = targetForm || form;
@@ -97,51 +99,74 @@ function fetchPlayer() {
     }).catch(submitError);
 }
 
+function insertPlayerRow(tblBody, target, p) {
+    var row = document.createElement('tr');
+    var killerName = document.createElement('td');
+    killerName.innerHTML = p.firstName + ' ' +p.lastName;
+
+    var targetName = document.createElement('tr');
+    console.log(target);
+    targetName.innerHTML = target[1].name;
+
+    var timeAssigned = document.createElement('td');
+    timeAssigned.innerHTML = p.target.timeAssigned + '  ';
+
+    var timeKilled = document.createElement('td');
+    timeKilled.innerHTML = p.killedBy.killTime;
+
+    var approve = document.createElement('button');
+    if (!p.killedBy) {
+        // style to make no onclick with different background
+        console.log('Did Not Work');
+    } else {
+        // approve.setAttribute('onclick', 'approveKill("' + p.killedBy.killer + '")' );
+        approve.onclick = approveKill(p.killedBy.killer);
+    }
+    approve.innerHTML = 'approve';
+
+    var remove = document.createElement('button');
+    remove.setAttribute('onclick', 'removeUser("' + p._id + '")' );
+    remove.innerHTML = 'remove';
+    // killer target time_assigned time_killed approve delete
+    row.appendChild(killerName);
+    row.appendChild(targetName);
+    row.appendChild(timeAssigned);
+    row.appendChild(timeKilled);
+    row.appendChild(approve);
+    row.appendChild(remove);
+    tblBody.appendChild(row);
+}
+
 function populateAdminPage(players) {
     var adminDiv = document.getElementById('js-admin');
     var tbl = document.createElement('table');
     var tblBody = document.createElement('tbody');
     players.forEach(function(p) {
-        var row = document.createElement('tr');
-        var killerName = document.createElement('td');
-        killerName.innerHTML = p.firstName + ' ' +p.lastName;
-
-        var targetName = document.createElement('td');
-        var target = searchTarget(p.target.victim);
-        console.log(target);
-        targetName.innerHTML = target[1].name;
-
-        var timeAssigned = document.createElement('td');
-        timeAssigned.innerHTML = p.target.timeAssigned;
-
-        var timeKilled = document.createElement('td');
-        timeKilled.innerHTML = p.killedBy.killTime;
-
-        var approve = document.createElement('button');
-        if (!p.killedBy) {
-            // style to make no onclick with different background
-            console.log('Did Not Work');
-        } else {
-            // approve.setAttribute('onclick', 'approveKill("' + p.killedBy.killer + '")' );
-            approve.onclick = approveKill(p.killedBy.killer);
-        }
-        approve.innerHTML = 'approve';
-
-        var remove = document.createElement('button');
-        remove.setAttribute('onclick', 'removeUser("' + p._id + '")' );
-        remove.innerHTML = 'remove';
-        // killer target time_assigned time_killed approve delete
-        row.appendChild(killerName);
-        row.appendChild(targetName);
-        row.appendChild(timeAssigned);
-        row.appendChild(timeKilled);
-        row.appendChild(approve);
-        row.appendChild(remove);
-        tblBody.appendChild(row);
+        var decodedToken = JSON.parse(atob(localStorage.token.split('.')[1]));
+        data = {
+            gameCode: decodedToken.gameCode,
+            playerId : p._id
+        };
+        fetch('/getPlayer', {
+            headers: {
+                'x-access-token': localStorage.token,
+                'Content-Type': 'application/json'
+            },
+            method: 'POST',
+            body: JSON.stringify(data)
+        }).then(function(res) {
+            if (!res.ok)
+                return submitError();
+            res.json().then(function(players) {
+                console.log(players[1].name);
+                insertPlayerRow(tblBody, players[1].name, p);
+            })
+        }).catch(submitError);
     });
     tbl.appendChild(tblBody);
     adminDiv.appendChild(tbl);
 }
+
 function searchTarget(targetId) {
     var decodedToken = JSON.parse(atob(localStorage.token.split('.')[1]));
     data = {
@@ -161,6 +186,7 @@ function searchTarget(targetId) {
         res.json().then(function(players) { return players })
     }).catch(submitError);
 }
+
 function approveKill(killer_Id) {
     var decodedToken = JSON.parse(atob(localStorage.token.split('.')[1]));
     data = {
@@ -415,9 +441,8 @@ function displayError(message) {
     errorDiv.innerHTML = message;
     errorDiv.style.visibility = 'visible';
 }
-
 ////////////////// Modals /////////////////////////////
 function showModal() {
     modal.style.display = 'block';
-}
-function hideModal() { modal.style.display = ''; }
+    }
+function hideModal() { modal.style.display = '';  }
