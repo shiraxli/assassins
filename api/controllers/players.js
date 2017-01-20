@@ -15,7 +15,7 @@ exports.createPlayer = (req, res, next) => {
         return res.status(400).send('No email');
     if (typeof req.body.password !== 'string')
         return res.status(400).send('No password');
-
+    // check that the user was not created before
     var playerData = {};
     playerData.firstName = req.body.firstName;
     playerData.lastName = req.body.lastName;
@@ -87,27 +87,12 @@ exports.updatePlayerById = (req, res, next) => {
     });
 };
 
-// TODO: use mongoose subdocument find and remove
 exports.deletePlayerById = (req, res, next) => {
     Game.findOne({ gameCode: req.params.gameCode }, (err, game) => {
         if (err) return next(err);
         if (!game) return res.status(404).send('No game with that game code');
-        var found = false;
-        for (var i = 0; i < game.livingPlayers.length; i++) {
-            if (String(game.livingPlayers[i]._id) === req.params.id) {
-                found = true;
-                game.livingPlayers.splice(i, 1);
-                game.markModified('livingPlayers');
-            }
-        }
-        for (var i = 0; i < game.killedPlayers.length; i++) {
-            if (String(game.killedPlayers[i]._id) === req.params.id) {
-                found = true;
-                game.killedPlayers.splice(i, 1);
-                game.markModified('killedPlayers');
-            }
-        }
-        if (!found) return res.status(404).send('No user with that id');
+        var player = game.allPlayers.id(req.params.id).remove();
+
         game.save((err) => {
             if (err) return next(err);
             return res.sendStatus(200);
@@ -120,20 +105,13 @@ exports.submitKill = (req, res, next)  => {
     helper.findPlayerById(req.params.gameCode, req.params.id, (err, killer, game) => {
         if (err) return next(err);
         if (!killer) return res.status(404).send('No killer with that id');
-        var victimId = killer.target.victim;
-        //var found = false;
-        // TODO: use subdocument lookup
-        for(var i = 0; i < game.livingPlayers.length; i++) {
-            if(!found && String(game.livingPlayers[i]._id) === String(victimId)) {
-                game.livingPlayers[i].killedBy.killer = killer._id;
-                game.livingPlayers[i].killedBy.killTime = killer.target.timeKilled = Date.now();
-                game.markModified('livingPlayers');
-                //found = true;
-                break;
-            }
-        }
-        if(i === game.livingPlayers.length)
-            return res.status(404).send('No victim with that id');
+
+        var victim = game.livingPlayers.id(killer.target.victim);
+
+        if (!victim) return res.status(404).send('No victim with that id');
+        victim.killedBy.killer = killer._id;
+        victim.killedBy.killTime = killer.target.timeKilled = Date.now();
+        game.markModified('livingPlayers');
 
         game.save((err) => {
             if (err) return next(err);
@@ -162,24 +140,19 @@ exports.approveKill = (req, res, next) => {
         // TODO : At the moment, no way to check if kill is within time limit (need to set some config global for that?)
         // TODO: add 'must kill by' date
         // No way to not approve kill yet, not sure how the route works for that, should it be a query?
-        var victimId = killer.target.victim;
-        //var found = false;
-        for (var i = 0; i < game.livingPlayers.length; i++) {
-            if (!found && String(game.livingPlayers[i]._id) === String(victimId)) {
-                // found = true;
-                killer.target.victim = game.livingPlayers[i].target.victim;
-                killer.target.timeAssigned = Date.now();
-                killer.target.timeKilled = null;
-                game.livingPlayers[i].deathApproved = true;
-                game.killedPlayers.push(game.livingPlayers[i]);
-                game.markModified('killedPlayers');
-                game.livingPlayers.splice(i, 1); // TODO: use mongoose remove
-                game.markModified('livingPlayers');
-                break;
-            }
-        }
-        if(i === game.livingPlayers.length)
-            return res.status(404).send('No victim with that id');
+
+        var killed = game.livingPlayers.id(killer.target.victim);
+
+        if (!killed) return res.status(404).send('No victim with that id');
+
+        killer.target.victim = killed.target.victim;
+        killer.target.timeAssigned = Date.now();
+        killer.target.timeKilled = null;
+        killed.deathApproved = true;
+        game.killedPlayers.push(killed);
+        game.markModified('killedPlayers');
+        killed.remove();
+        game.markModified('livingPlayers');
 
         // checks for end game
         if(game.livingPlayers.length === 1) {
@@ -188,8 +161,8 @@ exports.approveKill = (req, res, next) => {
 
         game.save((err) => {
             if (err) return next(err);
-            return sender.sendDeathNotification(req, res, next);
-            //return res.sendStatus(200);
+            //return sender.sendDeathNotification(req, res, next);
+            return res.sendStatus(200);
         });
     });
 };

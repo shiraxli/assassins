@@ -43,21 +43,43 @@ function submitCreateForm() {
     }
 
     if (errorMessage) return displayError(errorMessage);
-    console.log(data);
     fetch('/create', {
         headers: {'Content-Type': 'application/json'},
         method: 'POST',
         body: JSON.stringify(data)
     }).then(function(res) {
         if (!res.ok) return submitError(res)
-        else return res.json.then(function(result) {
-            // store token in local storage
-            localStorage.token = result.token;
-            var data = JSON.parse(atob(localStorage.token.split('.')[1]));
-           window.location = '/admin';
-            //window.location = '/games/' + result.gameCode + '/players'
+        res.json().then(function(result) {
+             localStorage.token = result.token;
+             window.location = '/admin';           
         });
     }).catch(submitError);
+}
+function fetchPlayers() {
+    if(!localStorage.token) window.location = '/';
+    var decodedToken = JSON.parse(atob(localStorage.token.split('.')[1]));
+    fetch('/admin/getPlayers', { 
+        headers: { 
+            'x-access-token': localStorage.token,
+            'Content-Type': 'application/json'
+        },
+        method: 'POST',
+        body: JSON.stringify({ gameCode: decodedToken.gameCode })
+    }).then(function(res) {
+            if (!res.ok)
+                return submitError();
+            res.json().then(function(players) { populatePlayersPage(players)  }) 
+    }).catch(submitError);
+}
+function populatePlayersPage(players) {
+    var playersDiv = document.getElementById('js-players');
+    console.log(players);
+    players.forEach(function(p) {
+        var playerDiv = document.createElement('div');
+        playerDiv.innerHTML = p.firstName
+        console.log(p.firstName);
+        playersDiv.appendChild(playerDiv);
+    });
 }
 
 function joinGame() {

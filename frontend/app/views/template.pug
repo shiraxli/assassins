@@ -9,6 +9,6 @@ html
     script(src='/js/script.min.js')
     if token
         script localStorage.token = "#{token}"
-    block postScript
+    block postscript
     if dev
         script(src='//localhost:10000/livereload.js')
