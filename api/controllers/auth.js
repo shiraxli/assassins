@@ -30,7 +30,7 @@ exports.loginAdmin = (req, res, next) => {
 
             game.save((err) => {
                 if (err) return next(err);
-                return res.json({ token: token });
+                return res.json({ token: token , gameStatus: game.gameStatus });
             });
         })
     });
@@ -60,12 +60,12 @@ exports.loginPlayer = function(req, res, next) {
             var token = jwt.encode(payload, config.secret);
 
             player.token = token;
-            if (player.deathApproved) game.markModified('killedPlayers');
+            if (player.killedBy.deathApproved) game.markModified('killedPlayers');
             else game.markModified('livingPlayers');
 
             game.save((err) => {
                 if (err) return next(err);
-                return res.json({ token: token });
+                return res.json({ token: token, gameStatus: game.gameStatus });
             });
         })
     });
