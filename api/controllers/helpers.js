@@ -4,6 +4,11 @@ const Player = schemas[1];
 
 exports.findPlayerById = (gameCode, id, callback) => {
     Game.findOne({ gameCode: gameCode }, (err, game) => {
+                
+        // Mongoose does not support calling populate() on 
+        // nested docs. Instead of `doc.arr[0].populate("path")`, use `doc.populate("arr.0.path")`
+        
+        game.populate('player.target');
         if (err) return callback(err);
         if (!game) {
             var e = new Error('No game with that game code');

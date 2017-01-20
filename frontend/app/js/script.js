@@ -55,7 +55,8 @@ function submitCreateForm() {
         });
     }).catch(submitError);
 }
-function fetchPlayers() {
+function fetchAdmin() {
+    if(!localStorage.token) window.location = '/';
     var decodedToken = JSON.parse(atob(localStorage.token.split('.')[1]));
     // if(!localStorage.token || decodedToken.playerId) window.location = '/';
     if(!localStorage.token) window.location = '/';
@@ -67,9 +68,9 @@ function fetchPlayers() {
         method: 'POST',
         body: JSON.stringify({ gameCode: decodedToken.gameCode })
     }).then(function(res) {
-        if (!res.ok)
-            return submitError();
-        res.json().then(function(players) { populatePlayersPage(players)  })
+            if (!res.ok)
+                return submitError();
+            res.json().then(function(players) { populateAdminPage(players)  }) 
     }).catch(submitError);
 }
 
@@ -91,18 +92,95 @@ function fetchPlayer() {
     }).catch(submitError);
 }
 
-function populatePlayersPage(players) {
-    var playersDiv = document.getElementById('js-players');
-    console.log(players);
+function populateAdminPage(players) {
+    var adminDiv = document.getElementById('js-admin');
+    var tbl = document.createElement('table');
+    var tblBody = document.createElement('tbody');
     players.forEach(function(p) {
-        var playerDiv = document.createElement('div');
-        playerDiv.innerHTML = p.firstName
-        console.log(p.firstName);
-        playersDiv.appendChild(playerDiv);
+        var row = document.createElement('tr');
+        var killerName = document.createElement('td');
+        killerName.innerHTML = p.firstName + ' ' +p.lastName;
+
+        var targetName = document.createElement('td');
+        var target = searchTarget(p.target.victim)
+        console.log(target);
+        targetName.innerHTML = target.firstName + ' ' + target.lastName;
+
+        var timeAssigned = document.createElement('td');
+        timeAssigned.innerHTML = p.target.timeAssigned;
+        
+        var timeKilled = document.createElement('td');
+        timeKilled.innerHTML = p.killedBy.killTime;
+        
+        var approve = document.createElement('button');
+        if (!p.killedBy) {
+            // style to make no onclick with different background
+            console.log('Did Not Work');
+        } else {
+            // approve.setAttribute('onclick', 'approveKill("' + p.killedBy.killer + '")' ); 
+            approve.onclick = approveKill(p.killedBy.killer);
+        }
+        approve.innerHTML = 'approve';
+
+        var remove = document.createElement('button');
+        remove.setAttribute('onclick', 'removeUser("' + p._id + '")' );
+        remove.innerHTML = 'remove';
+        // killer target time_assigned time_killed approve delete
+        row.appendChild(killerName);
+        row.appendChild(targetName);
+        row.appendChild(timeAssigned);
+        row.appendChild(timeKilled);
+        row.appendChild(approve);
+        row.appendChild(remove);
+        tblBody.appendChild(row);
     });
+    tbl.appendChild(tblBody);
+    adminDiv.appendChild(tbl);
+}
+function searchTarget(targetId) {
+    var decodedToken = JSON.parse(atob(localStorage.token.split('.')[1]));
+    data = {
+        gameCode: decodedToken.gameCode,
+        target_Id : targetId
+    };
+    console.log(player);
+    fetch('/admin/getTarget', {
+        headers: {
+            'x-access-token': localStorage.token,
+            'Content-Type': 'application/json'
+        },
+        method: 'POST',
+        body: JSON.stringify(player)
+    }).then(function(res) {
+        if (!res.ok)
+            return submitError();
+        console.log("hello");
+        res.json().then(function(players) { return players })        
+    }).catch(submitError);
+}
+function approveKill(killer_Id) {
+    var decodedToken = JSON.parse(atob(localStorage.token.split('.')[1]));
+    data = {
+        gameCode: decodedToken.gameCode,
+        killerId: killer_Id
+    }
+    fetch('/admin/approveKill', {
+        headers: {
+            'x-access-token': localStorage.token,
+            'Content-Type': 'application/json'
+        },
+        method: 'POST',
+        body: JSON.stringify(data)
+    }).then(function(res) {
+        if(!res.ok)
+            return submitError();
+        console.log('Successfully Approved Kill');        
+    }).catch(submitError);
 }
 
+
 function populateProfilePage (player) {
+    console.log(player);
     var kills = document.getElementById('kills');
     document.getElementById('firstName').innerHTML = player.firstName;
     document.getElementById('target').innerHTML = player.target;
@@ -249,25 +327,23 @@ function changeGameStatus() {
         // implement what happens when you start game
     }).catch(submitError);
 }
-
-function removeUser(name) {
-    // uses User Token (gameCode, user_id)
+function removeUser(playerId) {
     var decodedToken = JSON.parse(atob(localStorage.token.split('.')[1]));
     var data = {
         gameCode: decodedToken.gameCode ,
-        user_id: decodedToken._id
+        user_id: playerId
     };
 
     fetch('/removePlayer', {
         headers: {
+            'x-access-token':localStorage.token,
             'Content-type': 'application/json'
         },
         method: 'DELETE',
         body: JSON.stringify(data)
     }).then(function(res) {
         if(!res.ok) return submitError(res);
-        else console.log('Deleted Player');
-        // Update What Happens if You Delete User
+        console.log('Deleted Player');
     }).catch(submitError);
 }
 function endGame() {
