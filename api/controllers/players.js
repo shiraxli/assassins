@@ -33,6 +33,12 @@ exports.createPlayer = (req, res, next) => {
     Game.findOne({ gameCode: req.params.gameCode }, (err, game) => {
         if (err) return next(err);
         if (!game) return res.status(404).send('No game with that game code');
+
+        for (var i = 0; i < game.allPlayers.length; i++) {
+            if (game.allPlayers[i].email === req.body.email)
+                return res.status(400).send('Email already registered');
+        }
+
         game.livingPlayers.push(newPlayer);
         game.markModified('livingPlayers');
         game.save((err) => {

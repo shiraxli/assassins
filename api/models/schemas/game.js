@@ -33,6 +33,19 @@ playerSchema.virtual('fullName').get(function() {
     return this.firstName + ' ' + this.lastName;
 });
 
+/*playerSchema.pre('save', function(callback) {
+    if (!this.email)
+        return callback(new Error('Missing email'));
+    if (!validator.validate(this.email))
+        return callback(new Error('Invalid email'));
+    if (!this.password)
+        return callback(new Error('Missing password'));
+    if (this.isModified('password'))
+        this.password = bcrypt.hashSync(this.password);
+
+    callback();
+})*/
+
 playerSchema.methods.comparePlayerPassword = function(pw, callback) {
     bcrypt.compare(pw, this.password, (err, isMatch) => {
         if (err) return callback(err);
