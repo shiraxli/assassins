@@ -77,6 +77,7 @@ function fetchAdmin() {
 function fetchPlayer() {
     if(!localStorage.token) window.location = '/';
     var decodedToken = JSON.parse(atob(localStorage.token.split('.')[1]));
+    console.log(decodedToken.playerId);
     fetch('/getPlayer', {
         headers: {
             'x-access-token': localStorage.token,
@@ -111,12 +112,12 @@ function populateAdminPage(players) {
         var timeKilled = document.createElement('td');
         timeKilled.innerHTML = p.killedBy.killTime;
         
-        var approve = document.createElement('button');
+        /*var approve = document.createElement('button');
         if (!p.killedBy)
             // style to make no onclick with different background
         else
             approve.setAttribute('onclick', 'approveKill("' + p.killedBy.killer + '")' ); 
-        approve.innerHTML = 'approve';
+        approve.innerHTML = 'approve';*/
 
         var remove = document.createElement('button');
         remove.setAttribute('onclick', 'removeUser("' + p._id + '")' );
@@ -155,10 +156,10 @@ function approveKill(killerId) {
 
 
 function populateProfilePage (player) {
-    console.log(player);
+    console.log("Player " + player);
     var kills = document.getElementById('kills');
-    document.getElementById('firstName').innerHTML = player.firstName;
-    document.getElementById('target').innerHTML = player.target;
+    document.getElementById('firstName').innerHTML = player[0].firstName;
+    document.getElementById('target').innerHTML = player[1].name;
 }
 
 function joinGame() {
