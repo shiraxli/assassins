@@ -4,4 +4,7 @@ block content
     #navbar.right
         a(href='/logout').quiet-link.navbar-item Logout
     h1.title.center Game hasn't started yet!
+        #firstName
     p.center We'll let you know when it begins.
+block postscript
+    script fetchPlayer();
