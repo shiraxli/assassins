@@ -1,7 +1,7 @@
 var form = document.forms[0];
 
 function submitOnEnterKey(submitFunction, targetForm) {
-   targetForm = targetForm || form;
+    targetForm = targetForm || form;
     var runOnKeydown = function(e) { if (e.keyCode === 13) submitFunction();  }
     var children = targetForm.childNodes;
     for (var i = 0; i < children.length; i++) {
@@ -11,8 +11,8 @@ function submitOnEnterKey(submitFunction, targetForm) {
         var type = child.getAttribute('type');
         if (type === 'text' || type === 'email' || type === 'password' ||
             type === 'number' || type === 'phone')
-        child.onkeydown = runOnKeydown;
-                }
+            child.onkeydown = runOnKeydown;
+    }
 }
 
 function submitCreateForm() {
@@ -50,14 +50,15 @@ function submitCreateForm() {
     }).then(function(res) {
         if (!res.ok) return submitError(res)
         res.json().then(function(result) {
-             localStorage.token = result.token;
-             window.location = '/admin';           
+            localStorage.token = result.token;
+            window.location = '/admin';           
         });
     }).catch(submitError);
 }
 function fetchPlayers() {
-    if(!localStorage.token) window.location = '/';
     var decodedToken = JSON.parse(atob(localStorage.token.split('.')[1]));
+    // if(!localStorage.token || decodedToken.playerId) window.location = '/';
+    if(!localStorage.token) window.location = '/';
     fetch('/admin/getPlayers', { 
         headers: { 
             'x-access-token': localStorage.token,
@@ -66,11 +67,30 @@ function fetchPlayers() {
         method: 'POST',
         body: JSON.stringify({ gameCode: decodedToken.gameCode })
     }).then(function(res) {
-            if (!res.ok)
-                return submitError();
-            res.json().then(function(players) { populatePlayersPage(players)  }) 
+        if (!res.ok)
+            return submitError();
+        res.json().then(function(players) { populatePlayersPage(players)  }) 
     }).catch(submitError);
 }
+
+function fetchPlayer() {
+    if(!localStorage.token) window.location = '/';
+    var decodedToken = JSON.parse(atob(localStorage.token.split('.')[1]));
+    fetch('/getPlayer', { 
+        headers: { 
+            'x-access-token': localStorage.token,
+            'Content-Type': 'application/json'
+        },
+        method: 'POST',
+        body: JSON.stringify({ gameCode: decodedToken.gameCode,
+                              playerId: decodedToken.playerId})
+    }).then(function(res) {
+        if (!res.ok)
+            return submitError();
+        res.json().then(function(player) { populateProfilePage(player)  }) 
+    }).catch(submitError);
+}
+
 function populatePlayersPage(players) {
     var playersDiv = document.getElementById('js-players');
     console.log(players);
@@ -80,6 +100,12 @@ function populatePlayersPage(players) {
         console.log(p.firstName);
         playersDiv.appendChild(playerDiv);
     });
+}
+
+function populateProfilePage (player) {
+    var kills = document.getElementById('kills');
+    document.getElementById('firstName').innerHTML = player.firstName;
+    document.getElementById('target').innerHTML = player.target;
 }
 
 function joinGame() {
@@ -148,6 +174,7 @@ function changeGameStatus() {
         // implement what happens when you start game
     }).catch(submitError);
 }
+
 function removeUser(name) {
     // uses User Token (gameCode, user_id)
     var decodedToken = JSON.parse(atob(localStorage.token.split('.')[1]));
@@ -188,10 +215,10 @@ function endGame() {
 function validateEmail(target, isRequired) {
     var email = target.value;
     if (!email && !isRequired) return true;
-        // http://emailregex.com/
-     var isValid = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(email);
-     if (!isValid) error(target);
-         return isValid;
+    // http://emailregex.com/
+    var isValid = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(email);
+    if (!isValid) error(target);
+    return isValid;
 }
 
 function error(target) {
