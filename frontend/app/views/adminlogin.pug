@@ -7,3 +7,6 @@ block content
         input.form-input(type='text' name='gameCode' placeholder='Game Code' onFocus='clearError(this)')
         input.form-input(type='password' name='password' placeholder='Game Password' onFocus='clearError(this)')
         button.form-input.button(type='button' onclick='loginAdmin()') Login
+
+block postscript
+    script submitOnEnterKey(loginAdmin);

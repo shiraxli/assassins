@@ -10,3 +10,6 @@ block content
         input.form-input(type='text' name='email' placeholder='Email' onFocus='clearError(this)' onBlur='validateEmail(this)')
         input.form-input(type='password' name='password' placeholder='Password' onFocus='clearError(this)')
         button.form-input.button(type='button' onclick='joinGame()') Join Game
+
+block postscript
+    script submitOnEnterKey(joinGame);

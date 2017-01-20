@@ -1,11 +1,13 @@
 extends template
 
 block content
+    #navbar.right
+        a(href='/logout').quiet-link.navbar-item Logout
     form#js-login-form.form
         h1.title.center Admin
         #js-error-message
-        button.form-input.button(type='button' onclick='startGame()') Start Game
-        #js-players
+        #js-admin
+        button.form-input.button(type='button' onclick='changeGameStatus()') Start Game
         button.form-input.button(type='button' onclick='endGame()') End Game
         // start game
         // end game
@@ -14,4 +16,4 @@ block content
         // approve kills
 
 block postscript
-    script fetchPlayers();
+    script fetchAdmin();
