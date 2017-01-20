@@ -87,7 +87,7 @@ function fetchPlayer() {
     }).then(function(res) {
         if (!res.ok)
             return submitError();
-        res.json().then(function(player) { populateProfilePage(player)  }) 3
+        res.json().then(function(player) { populateProfilePage(player);  }) 
     }).catch(submitError);
 }
 
@@ -201,7 +201,36 @@ function loginPlayer() {
 }
 
 function loginAdmin() {
+    var data = {};
+    var errorMessage = '';
+    if (!form.gameCode.value) {
+        error(form.gameCode);
+        errorMessage += 'Please Enter Game Code; ';
+    } else {
+        data.gameCode = form.gameCode.value;
+    }
+    if (!form.password.value) {
+        error(form.password);
+        errorMessage += 'Please Enter Password; ';
+    } else {
+        data.password = form.password.value;
+    }
 
+    if (errorMessage) return displayError(errorMessage);
+
+    fetch('/login/admin', {
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        method: 'POST',
+        body: JSON.stringify(data)
+    }).then(function(res) {
+        if (!res.ok) return submitError(res);
+        else return res.json().then(function (result) {
+            localStorage.token = result.token;
+            window.location = '/admin?token=' + result.token;
+        })
+    }).catch(submitError);
 }
 
 function changeGameStatus() {
