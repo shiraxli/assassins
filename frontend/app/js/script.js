@@ -51,15 +51,15 @@ function submitCreateForm() {
         if (!res.ok) return submitError(res)
         res.json().then(function(result) {
              localStorage.token = result.token;
-             window.location = '/admin';           
+             window.location = '/admin?token=' + result.token;
         });
     }).catch(submitError);
 }
 function fetchPlayers() {
     if(!localStorage.token) window.location = '/';
     var decodedToken = JSON.parse(atob(localStorage.token.split('.')[1]));
-    fetch('/admin/getPlayers', { 
-        headers: { 
+    fetch('/admin/getPlayers', {
+        headers: {
             'x-access-token': localStorage.token,
             'Content-Type': 'application/json'
         },
@@ -68,7 +68,7 @@ function fetchPlayers() {
     }).then(function(res) {
             if (!res.ok)
                 return submitError();
-            res.json().then(function(players) { populatePlayersPage(players)  }) 
+            res.json().then(function(players) { populatePlayersPage(players)  })
     }).catch(submitError);
 }
 function populatePlayersPage(players) {
@@ -126,14 +126,57 @@ function joinGame() {
         body: JSON.stringify(data)
     }).then(function(res) {
         if (!res.ok) return submitError(res);
-        // localStorage.token = result.token;
-        else console.log('joined a game!');
-        //window.location = '/player';
+        else return res.json().then(function (result) {
+            localStorage.token = result.token;
+            window.location = '/player' + result.gameStatus + "?token=" + result.token;
+        })
     }).catch(submitError);
 }
 
+// { headers: { 'x-access-token': localStorage.token } }
 
-{ headers: { 'x-access-token': localStorage.token } }
+function loginPlayer() {
+    var data = {};
+    var errorMessage = '';
+    if (!form.gameCode.value) {
+        error(form.gameCode);
+        errorMessage += 'Please Enter Game Code; ';
+    } else {
+        data.gameCode = form.gameCode.value;
+    }
+    if (!form.email.value) {
+        error(form.email);
+        errorMessage += 'Please Enter Email; ';
+    } else {
+        data.email = form.email.value;
+    }
+    if (!form.password.value) {
+        error(form.password);
+        errorMessage += 'Please Enter Password; ';
+    } else {
+        data.password = form.password.value;
+    }
+
+    if (errorMessage) return displayError(errorMessage);
+
+    fetch('/login/player', {
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        method: 'POST',
+        body: JSON.stringify(data)
+    }).then(function(res) {
+        if (!res.ok) return submitError(res);
+        else return res.json().then(function (result) {
+            localStorage.token = result.token;
+            window.location = '/player' + result.gameStatus + "?token=" + result.token;
+        })
+    }).catch(submitError);
+}
+
+function loginAdmin() {
+
+}
 
 function changeGameStatus() {
     // uses Game Token

@@ -30,6 +30,13 @@ router.post('/join', (req, res, next) => {
 router.get('/login/player', (req, res, next) => {
     return res.render('playerlogin', {title: 'Player Login' });
 });
+router.post('/login/player', (req, res, next) => {
+    request.post({
+        url: config.apiUrl + '/auth/player',
+        form: req.body
+    }).pipe(res);
+})
+
 router.get('/login/admin', (req, res, next) => {
     return res.render('adminlogin', {title: 'Admin Login' });
 });
@@ -57,5 +64,17 @@ router.delete('/removePlayer', (req, res, next) => {
     }).pipe(res);
 });
 
+router.get('/player0', (req, res, next) => {
+    //res.header('x-access-token', req.query.token);
+    return res.render('player0', {title: 'Player Profile'});
+});
+router.get('/player1', (req, res, next) => {
+    //res.header('x-access-token', req.query.token);
+    return res.render('player1', {title: 'Player Profile'});
+});
+router.get('/player2', (req, res, next) => {
+    //res.header('x-access-token', req.query.token);
+    return res.render('player2', {title: 'Player Profile'});
+});
 
 module.exports = router;

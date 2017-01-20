@@ -88,7 +88,7 @@ gameSchema.methods.comparePassword = function(pw, callback) {
 
 gameSchema.virtual('allPlayers').get(function() {
     var allPlayers = this.livingPlayers;
-    if (this.killedPlayers.length !== 0) allPlayers.concat(this.killedPlayers);
+    if (this.killedPlayers.length > 0) allPlayers.concat(this.killedPlayers);
     return allPlayers;
 });
 
