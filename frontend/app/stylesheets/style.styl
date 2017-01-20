@@ -37,11 +37,15 @@ h1
     margin 0 auto
     max-width 1080px
 .navbar-item
+    -webkit-transition-duration 0.2s
+    transition-duration 0.2s
     display block
     padding 1rem
     text-align center
 .navbar-item:hover
     cursor pointer
+    background-color text-color
+    color #ddd
 @media only screen and (min-width: mobile-width)
     .navbar-item
         display inline-block
@@ -85,6 +89,7 @@ h1
 .button:hover
     background-color text-color
     color #ddd
+    cursor pointer
 
 .error-message
     visibility hidden
@@ -124,7 +129,7 @@ h1
     min-width 10%
     padding 20px
     border-radius 10px
-    font-size 16px
+    font-size 20px
 
 #login-buttons
     flexbox()
@@ -138,7 +143,7 @@ h1
     min-width 10%
     padding 20px
     border-radius 10px
-    font-size 16px
+    font-size 20px
 
 #js-error-message
     font-weight bold
