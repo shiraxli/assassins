@@ -1,8 +1,6 @@
 extends template
 
 block content
-    #navbar.right
-        a(href='/logout').quiet-link.navbar-item Logout
     form#js-login-form.form
         h1.title.center Admin
         #js-error-message
@@ -12,8 +10,6 @@ block content
         // start game
         // end game
         // edit rules
-        // remove users
-        // approve kills
 
 block postscript
     script fetchAdmin();

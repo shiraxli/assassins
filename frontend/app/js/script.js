@@ -102,7 +102,8 @@ function populateAdminPage(players) {
         killerName.innerHTML = p.firstName + ' ' +p.lastName;
 
         var targetName = document.createElement('td');
-        var target = searchTarget(p)
+        var target = searchTarget(p.target.victim)
+        console.log(target);
         targetName.innerHTML = target.firstName + ' ' + target.lastName;
 
         var timeAssigned = document.createElement('td');
@@ -112,10 +113,13 @@ function populateAdminPage(players) {
         timeKilled.innerHTML = p.killedBy.killTime;
         
         var approve = document.createElement('button');
-        if (!p.killedBy)
+        if (!p.killedBy) {
             // style to make no onclick with different background
-        else
-            approve.setAttribute('onclick', 'approveKill("' + p.killedBy.killer + '")' ); 
+            console.log('Did Not Work');
+        } else {
+            // approve.setAttribute('onclick', 'approveKill("' + p.killedBy.killer + '")' ); 
+            approve.onclick = approveKill(p.killedBy.killer);
+        }
         approve.innerHTML = 'approve';
 
         var remove = document.createElement('button');
@@ -133,9 +137,13 @@ function populateAdminPage(players) {
     tbl.appendChild(tblBody);
     adminDiv.appendChild(tbl);
 }
-function searchTarget(player) {
+function searchTarget(targetId) {
     var decodedToken = JSON.parse(atob(localStorage.token.split('.')[1]));
-    player.gameCode = decodedToken.gameCode
+    data = {
+        gameCode: decodedToken.gameCode,
+        target_Id : targetId
+    };
+    console.log(player);
     fetch('/admin/getTarget', {
         headers: {
             'x-access-token': localStorage.token,
@@ -146,11 +154,28 @@ function searchTarget(player) {
     }).then(function(res) {
         if (!res.ok)
             return submitError();
+        console.log("hello");
         res.json().then(function(players) { return players })        
     }).catch(submitError);
 }
-function approveKill(killerId) {
-    
+function approveKill(killer_Id) {
+    var decodedToken = JSON.parse(atob(localStorage.token.split('.')[1]));
+    data = {
+        gameCode: decodedToken.gameCode,
+        killerId: killer_Id
+    }
+    fetch('/admin/approveKill', {
+        headers: {
+            'x-access-token': localStorage.token,
+            'Content-Type': 'application/json'
+        },
+        method: 'POST',
+        body: JSON.stringify(data)
+    }).then(function(res) {
+        if(!res.ok)
+            return submitError();
+        console.log('Successfully Approved Kill');        
+    }).catch(submitError);
 }
 
 
